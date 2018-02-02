@@ -17,18 +17,15 @@ class Projector(object):
         for event in query.all():
             if i > until:
                 return
-            print('Processing event {}'.format(event.id))
+            print('Processing event {} of type {}'.format(event.id, event.type))
             self.handle_event(event)
             i = i+1
+            self.db_session.commit()
 
     def handle_event(self, event):
         for event_handle_class in self.event_handling_classes:
             if event.type in event_handle_class.get_interesting_events():
-                curr_class_name = event_handle_class.__name__
-                the_id = event_handle_class.get_external_id_from_body(event.body)
-                entity = event_handle_class.get_db_model().query \
-                            .filter(event_handle_class.get_db_model().external_id==the_id).first()
-                new_entity = event_handle_class.handle_event(entity, event)
+                print('Handling event {} of type {} with class {}'.format(event.id, event.type, event_handle_class))
+                event_handle_class.handle_event(self.db_session, event)
 
-                event_handle_class.get_db_model().write_projection(self.db_session, new_entity)
         self.last_processed_event_id = event.id

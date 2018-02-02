@@ -15,21 +15,8 @@ class Pipeline(Base):
     started_running_at = Column(DateTime, nullable=True)
     finished_running_at = Column(DateTime, nullable=True)
 
-    @classmethod
-    def write_projection(cls, session, projection):
-        pipeline_model = Pipeline(id=projection.id,
-                                  external_id=projection.external_id,
-                                  currently_running=projection.currently_running,
-                                  result=projection.result,
-                                  last_update=projection.last_update,
-                                  started_running_at=projection.started_running_at,
-                                  finished_running_at=projection.finished_running_at)
-        print('Saving Pipeline: {}'.format(pipeline_model))
-        session.merge(pipeline_model)
-        session.commit()
-
     def __repr__(self):
-        return '<Pipeline {}>, last_update: {}, currently_running: {}, result: {}, '.format(
+        return '<Pipeline {}>, last_update: {}, currently_running: {}, result: {}'.format(
         self.external_id,
         self.last_update,
         self.currently_running,
@@ -57,20 +44,6 @@ class PipelineStage(Base):
     started_running_at = Column(DateTime, nullable=True)
     finished_running_at = Column(DateTime, nullable=True)
 
-    @classmethod
-    def write_projection(cls, session, projection):
-        pipeline_stage_model = PipelineStage(id=projection.id,
-                                             external_id=projection.external_id,
-                                              currently_running=projection.currently_running,
-                                              result=projection.result,
-                                              last_update=projection.last_update,
-                                              pipeline_id=projection.pipeline_id,
-                                              started_running_at=projection.started_running_at,
-                                              finished_running_at=projection.finished_running_at)
-        print('Saving Pipeline Stage: {}'.format(pipeline_stage_model))
-        session.merge(pipeline_stage_model)
-        session.commit()
-
     def __repr__(self):
         return '<PipelineStage {}> pipeline_id: {}, last_update: {}, currently_running: {}, result: {}, '.format(
         self.external_id,
@@ -96,23 +69,11 @@ class Repository(Base):
     id = Column(Integer, primary_key=True)
     external_id = Column(String, nullable=False, index=True)
     name = Column(String, nullable=False, unique=True, index=True)
-    last_pusher = Column(String, nullable=False)
+    last_pusher = Column(JSONB, nullable=False)
     head_sha = Column(String, nullable=False)
     previous_head_sha = Column(String, nullable=False)
     last_update = Column(DateTime, nullable=False)
-
-    @classmethod
-    def write_projection(cls, session, projection):
-        repo_model = Repository(id=projection.id,
-                                external_id=projection.external_id,
-                                name=projection.name,
-                                last_pusher=projection.last_pusher,
-                                head_sha=projection.head_sha,
-                                previous_head_sha=projection.previous_head_sha,
-                                last_update=projection.last_update)
-        print('Saving Repository: {}'.format(repo_model))
-        session.merge(repo_model)
-        session.commit()
+    commits = Column(JSONB, nullable=False, index=True)
 
     def __repr__(self):
         return '<Repository {}> name: {}, last_update: {}, last_pusher: {}, head_sha: {}, previous_head_sha: {}'.format(
@@ -131,24 +92,9 @@ class Repository(Base):
             'last_update': self.last_update,
             'last_pusher': self.last_pusher,
             'head_sha': self.head_sha,
-            'previous_head_sha': self.previous_head_sha
+            'previous_head_sha': self.previous_head_sha,
+            'commits': self.commits
         }
-
-class CodeCommit(Base):
-    __tablename__ = 'code_commits'
-    id = Column(Integer, primary_key=True)
-    sha = Column(String, nullable=False, index=True)
-    message = Column(String, nullable=True)
-    created_at = Column(DateTime, nullable=False)
-
-    def as_dict(self):
-        return {
-            'id': self.id,
-            'sha': self.sha,
-            'message': self.message,
-            'created_at': self.created_at
-        }
-
 
 class Event(Base):
     __tablename__ = 'events'

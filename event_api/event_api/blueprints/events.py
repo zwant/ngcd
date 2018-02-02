@@ -48,3 +48,13 @@ def repository(repo_name=None):
     if not repository:
         abort(404)
     return jsonify(repository.as_dict())
+
+@bp.route("/commit/<sha>/")
+def commit(sha=None):
+    projector = Projector(db.session)
+    projector.process_events()
+    repos = model.Repository.query \
+                .filter(model.Repository.commits.contains([{'sha': sha}])).all()
+    if not repos:
+        abort(404)
+    return jsonify([repo.as_dict() for repo in repos])

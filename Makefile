@@ -29,7 +29,10 @@ create-events:
 	curl -s --output /dev/null http://localhost:5000/pipeline_stage_started/stage2/other; \
 	curl -s --output /dev/null -H "Content-Type: application/json" -X POST -d \
 	'{"new_head_sha": "23456","previous_head_sha": "00000","user": {"id": "1","username": "svante","email": "svante@paldan.se"},"commits": [{"sha": "12345","message": "test commit!"},{"sha": "23456","message": "test commit number 2!"}]}' \
-	http://localhost:5000/push/testrepo/23456
+	http://localhost:5000/push/testrepo/23456; \
+	curl -s --output /dev/null -H "Content-Type: application/json" -X POST -d \
+	'{"new_head_sha": "34567","previous_head_sha": "23456","user": {"id": "1","username": "svante","email": "svante@paldan.se"},"commits": [{"sha": "23456","message": "test commit!"},{"sha": "34567","message": "test commit number 2!"}]}' \
+	http://localhost:5000/push/otherrepo/34567
 
 install-common-deps:
 	source env/bin/activate; cd common; pip install --editable .
