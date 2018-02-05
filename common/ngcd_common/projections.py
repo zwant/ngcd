@@ -16,9 +16,13 @@ class Projection(object):
 
     @classmethod
     def get_or_create_with_external_id(cls, external_id, model_cls):
-        model = model_cls.query \
-                .filter(model_cls.external_id==external_id) \
-                .first()
+        return cls.get_or_create_by_query(external_id,
+                                          model_cls.query.filter(model_cls.external_id==external_id),
+                                          model_cls)
+
+    @classmethod
+    def get_or_create_by_query(cls, external_id, query, model_cls):
+        model = query.first()
 
         if not model:
             model = model_cls(external_id=external_id)
@@ -59,7 +63,12 @@ class PipelineStageProjection(Projection):
 
     @classmethod
     def handle_event(cls, session, event):
-        pipeline_stage = cls.get_or_create_with_external_id(cls.get_external_id_from_body(event.body), PipelineStageModel)
+        external_id = cls.get_external_id_from_body(event.body)
+        query = PipelineStageModel.query.filter(PipelineStageModel.external_id==external_id) \
+                                        .filter(PipelineStageModel.pipeline_id==event.body['pipelineUuid'])
+        pipeline_stage = cls.get_or_create_by_query(external_id,
+                                                    query,
+                                                    PipelineStageModel)
 
         if event.type == 'PipelineStageStarted':
             pipeline_stage.currently_running = True
