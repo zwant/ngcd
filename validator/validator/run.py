@@ -37,9 +37,12 @@ def main():
 
     channel.start_consuming()
 
+def get_headers(queue_config):
+    return {'proto-message-type': str(queue_config.message_clz.__name__)}
+
 def create_callback(src_queue_config, dst_queue_config):
     def callback(ch, method, properties, body):
-        headers = {'proto-message-type': str(dst_queue_config.message_clz.__name__)}
+        headers = get_headers(dst_queue_config)
         ch.basic_publish(exchange=dst_queue_config.exchange,
                          routing_key=dst_queue_config.routing_key,
                          body=validate_and_convert_message(body, src_queue_config.message_clz, dst_queue_config.message_clz),

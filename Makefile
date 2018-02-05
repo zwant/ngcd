@@ -9,6 +9,9 @@ clean:
 run-validator:
 	source env/bin/activate; cd validator; python validator/run.py
 
+test-validator:
+	source env/bin/activate; cd validator; python setup.py test
+
 run-metrics-writer:
 	source env/bin/activate; cd metrics_writer; python metrics_writer/run.py
 
@@ -67,3 +70,5 @@ install-deps: install-common-deps install-validator-deps install-publisher-deps 
 
 create-venv:
 	python3 -m venv env
+
+test: test-validator
