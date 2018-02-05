@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='publisher',
+    name='metrics_writer',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'Flask',
-        'pika'
+        'pika',
+        'influxdb'
     ],
     setup_requires=[
         'pytest-runner',

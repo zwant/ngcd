@@ -3,36 +3,19 @@ import pika
 import sys
 from event_writer import config
 from collections import namedtuple
-from ngcd_common import events_pb2, model
+from ngcd_common import queue_configs, model
 
-
-HEADER_CLASS_MAP = {
-    'PipelineStarted': events_pb2.PipelineStarted,
-    'PipelineFinished': events_pb2.PipelineFinished,
-    'PipelineStageStarted': events_pb2.PipelineStageStarted,
-    'PipelineStageFinished': events_pb2.PipelineStageFinished,
-    'CodePushed': events_pb2.CodePushed
-}
-
-def handle_headers(headers_map):
-    if not headers_map:
-         return None
-    header_indicator = headers_map.get('proto-message-type', None)
-    if not header_indicator:
-        return None
-    expected_clz = HEADER_CLASS_MAP.get(header_indicator, None)
-    return expected_clz
 
 def make_callback(db_session):
     def callback(ch, method, properties, body):
-        expected_clz = handle_headers(properties.headers)
+        expected_clz = queue_configs.handle_headers(properties.headers)
         if not expected_clz:
             print('Dont know how to handle message with headers {}, throwing it away'.format(properties.headers))
             ch.basic_ack(delivery_tag = method.delivery_tag)
             return
 
         parsed_data = parse_message(body, expected_clz)
-        print('Received 1 message with routing key {}, of type {}, Data: {}'.format(method.routing_key, expected_clz.__name__, parsed_data))
+        print('Received 1 message with routing key {}, of type {}'.format(method.routing_key, expected_clz.__name__))
         model.Event.write_event(db_session, parsed_data)
         ch.basic_ack(delivery_tag = method.delivery_tag)
     return callback

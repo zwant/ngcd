@@ -27,6 +27,7 @@ def main():
     channel = connection.channel()
 
     channel.exchange_declare(exchange='internal',
+                             durable=True,
                              exchange_type='topic')
 
     print('Setting up {} converters'.format(len(ALL_QUEUE_CONFIGS)))

@@ -1,7 +1,10 @@
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+import pytz
+
+from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMP
 from google.protobuf.json_format import MessageToDict
 from sqlalchemy import Column, Integer, String, DateTime, func, Boolean
 from sqlalchemy.ext.declarative import declarative_base
+import dateutil.parser
 
 Base = declarative_base()
 
@@ -11,9 +14,9 @@ class Pipeline(Base):
     external_id = Column(String, nullable=False, index=True)
     currently_running = Column(Boolean, nullable=False, server_default='false')
     result = Column(String, nullable=True)
-    last_update = Column(DateTime, nullable=False)
-    started_running_at = Column(DateTime, nullable=True)
-    finished_running_at = Column(DateTime, nullable=True)
+    last_update = Column(TIMESTAMP(timezone=True), nullable=False)
+    started_running_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    finished_running_at = Column(TIMESTAMP(timezone=True), nullable=True)
 
     def __repr__(self):
         return '<Pipeline {}>, last_update: {}, currently_running: {}, result: {}'.format(
@@ -40,9 +43,9 @@ class PipelineStage(Base):
     pipeline_id = Column(String, nullable=False)
     currently_running = Column(Boolean, nullable=False, server_default='false')
     result = Column(String, nullable=True)
-    last_update = Column(DateTime, nullable=False)
-    started_running_at = Column(DateTime, nullable=True)
-    finished_running_at = Column(DateTime, nullable=True)
+    last_update = Column(TIMESTAMP(timezone=True), nullable=False)
+    started_running_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    finished_running_at = Column(TIMESTAMP(timezone=True), nullable=True)
 
     def __repr__(self):
         return '<PipelineStage {}> pipeline_id: {}, last_update: {}, currently_running: {}, result: {}, '.format(
@@ -72,7 +75,7 @@ class Repository(Base):
     last_pusher = Column(JSONB, nullable=False)
     head_sha = Column(String, nullable=False)
     previous_head_sha = Column(String, nullable=False)
-    last_update = Column(DateTime, nullable=False)
+    last_update = Column(TIMESTAMP(timezone=True), nullable=False)
     commits = Column(JSONB, nullable=False, index=True)
 
     def __repr__(self):
@@ -102,12 +105,12 @@ class Event(Base):
     id = Column(Integer, primary_key=True)
     type = Column(String, nullable=False, index=True)
     body = Column(JSONB, nullable=False, index=True)
-    inserted_at = Column(DateTime, nullable=False, server_default=func.now())
-    event_origin_time = Column(DateTime, nullable=False)
+    inserted_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
+    event_origin_time = Column(TIMESTAMP(timezone=True), nullable=False)
 
     def __repr__(self):
-        return '<Event {}> Type: {}, inserted_at: {}, Body: {}, '.format(self.id,
-        self.type, self.inserted_at, self.body)
+        return '<Event {}> Type: {}, inserted_at: {}, event_origin_time: {}. Body: {}, '.format(self.id,
+        self.type, self.inserted_at, self.event_origin_time, self.body)
 
     @classmethod
     def write_event(cls, session, event_pb):
@@ -124,4 +127,5 @@ class Event(Base):
 
     @classmethod
     def _get_event_origin_time(cls, event_pb):
-        return event_pb.timestamp.ToDatetime()
+        ts_string = event_pb.timestamp.ToJsonString()
+        return dateutil.parser.parse(ts_string)

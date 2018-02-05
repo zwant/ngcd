@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='events.proto',
   package='events',
   syntax='proto3',
-  serialized_pb=_b('\n\x0c\x65vents.proto\x12\x06\x65vents\x1a\x1fgoogle/protobuf/timestamp.proto\"N\n\x0fPipelineStarted\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"o\n\x10PipelineFinished\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1e\n\x06result\x18\x03 \x01(\x0e\x32\x0e.events.Result\"j\n\x14PipelineStageStarted\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x8b\x01\n\x15PipelineStageFinished\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x1e\n\x06result\x18\x04 \x01(\x0e\x32\x0e.events.Result\"6\n\x07ScmUser\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"y\n\tScmCommit\x12\x0b\n\x03sha\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1f\n\x06\x61uthor\x18\x03 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xca\x01\n\nCodePushed\x12\x17\n\x0frepository_name\x18\x01 \x01(\t\x12\x14\n\x0cnew_head_sha\x18\x02 \x01(\t\x12\x19\n\x11previous_head_sha\x18\x03 \x01(\t\x12\x1f\n\x06pusher\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12\"\n\x07\x63ommits\x18\x05 \x03(\x0b\x32\x11.events.ScmCommit\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*/\n\x06Result\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0b\n\x07\x41\x42ORTED\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n\x0c\x65vents.proto\x12\x06\x65vents\x1a\x1fgoogle/protobuf/timestamp.proto\"N\n\x0fPipelineStarted\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x84\x01\n\x10PipelineFinished\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x03 \x01(\x05\x12\x1e\n\x06result\x18\x04 \x01(\x0e\x32\x0e.events.Result\"j\n\x14PipelineStageStarted\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xa0\x01\n\x15PipelineStageFinished\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x04 \x01(\x05\x12\x1e\n\x06result\x18\x05 \x01(\x0e\x32\x0e.events.Result\"6\n\x07ScmUser\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"y\n\tScmCommit\x12\x0b\n\x03sha\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1f\n\x06\x61uthor\x18\x03 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xca\x01\n\nCodePushed\x12\x17\n\x0frepository_name\x18\x01 \x01(\t\x12\x14\n\x0cnew_head_sha\x18\x02 \x01(\t\x12\x19\n\x11previous_head_sha\x18\x03 \x01(\t\x12\x1f\n\x06pusher\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12\"\n\x07\x63ommits\x18\x05 \x03(\x0b\x32\x11.events.ScmCommit\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*/\n\x06Result\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0b\n\x07\x41\x42ORTED\x10\x02\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -46,8 +46,8 @@ _RESULT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=884,
-  serialized_end=931,
+  serialized_start=927,
+  serialized_end=974,
 )
 _sym_db.RegisterEnumDescriptor(_RESULT)
 
@@ -118,8 +118,15 @@ _PIPELINEFINISHED = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='result', full_name='events.PipelineFinished.result', index=2,
-      number=3, type=14, cpp_type=8, label=1,
+      name='duration_ms', full_name='events.PipelineFinished.duration_ms', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='result', full_name='events.PipelineFinished.result', index=3,
+      number=4, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -136,8 +143,8 @@ _PIPELINEFINISHED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=137,
-  serialized_end=248,
+  serialized_start=138,
+  serialized_end=270,
 )
 
 
@@ -181,8 +188,8 @@ _PIPELINESTAGESTARTED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=250,
-  serialized_end=356,
+  serialized_start=272,
+  serialized_end=378,
 )
 
 
@@ -215,8 +222,15 @@ _PIPELINESTAGEFINISHED = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='result', full_name='events.PipelineStageFinished.result', index=3,
-      number=4, type=14, cpp_type=8, label=1,
+      name='duration_ms', full_name='events.PipelineStageFinished.duration_ms', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='result', full_name='events.PipelineStageFinished.result', index=4,
+      number=5, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -233,8 +247,8 @@ _PIPELINESTAGEFINISHED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=359,
-  serialized_end=498,
+  serialized_start=381,
+  serialized_end=541,
 )
 
 
@@ -278,8 +292,8 @@ _SCMUSER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=500,
-  serialized_end=554,
+  serialized_start=543,
+  serialized_end=597,
 )
 
 
@@ -330,8 +344,8 @@ _SCMCOMMIT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=556,
-  serialized_end=677,
+  serialized_start=599,
+  serialized_end=720,
 )
 
 
@@ -396,8 +410,8 @@ _CODEPUSHED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=680,
-  serialized_end=882,
+  serialized_start=723,
+  serialized_end=925,
 )
 
 _PIPELINESTARTED.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP

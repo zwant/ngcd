@@ -8,6 +8,8 @@ setup(
         "protobuf",
         'psycopg2',
         'SQLAlchemy',
+        'pytz',
+        'dateutil'
     ],
     setup_requires=[
     ],
