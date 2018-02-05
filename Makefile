@@ -39,10 +39,10 @@ create-events:
 	curl -s --output /dev/null -H "Content-Type: application/json" -X POST -d \
 	'{"timestamp": "2012-04-23T18:25:43.511Z","pipeline_uuid": "other"}' http://localhost:5000/pipeline_stage_started/stage2/; \
 	curl -s --output /dev/null -H "Content-Type: application/json" -X POST -d \
-	'{"timestamp": "2012-04-23T18:25:43.511Z", "new_head_sha": "23456","previous_head_sha": "00000","user": {"id": "1","username": "svante","email": "svante@paldan.se"},"commits": [{"sha": "12345","message": "test commit!", "timestamp": "2012-04-23T18:25:43.511Z"},{"sha": "23456","message": "test commit number 2!", "timestamp": "2012-04-23T18:25:43.511Z"}]}' \
+	'{"timestamp": "2012-04-23T18:25:43.511Z", "new_head_sha": "23456","previous_head_sha": "00000","user": {"id": "1","username": "svante","email": "dummy@example.com"},"commits": [{"sha": "12345","message": "test commit!", "timestamp": "2012-04-23T18:25:43.511Z"},{"sha": "23456","message": "test commit number 2!", "timestamp": "2012-04-23T18:25:43.511Z"}]}' \
 	http://localhost:5000/push/testrepo/23456/; \
 	curl -s --output /dev/null -H "Content-Type: application/json" -X POST -d \
-	'{"timestamp": "2012-04-23T18:25:43.511Z","new_head_sha": "34567","previous_head_sha": "23456","user": {"id": "1","username": "svante","email": "svante@paldan.se"},"commits": [{"sha": "23456","message": "test commit!", "timestamp": "2012-04-23T18:25:43.511Z"},{"sha": "34567","message": "test commit number 2!", "timestamp": "2012-04-23T18:25:43.511Z"}]}' \
+	'{"timestamp": "2012-04-23T18:25:43.511Z","new_head_sha": "34567","previous_head_sha": "23456","user": {"id": "1","username": "svante","email": "dummy@example.com"},"commits": [{"sha": "23456","message": "test commit!", "timestamp": "2012-04-23T18:25:43.511Z"},{"sha": "34567","message": "test commit number 2!", "timestamp": "2012-04-23T18:25:43.511Z"}]}' \
 	http://localhost:5000/push/otherrepo/34567/
 
 install-common-deps:
