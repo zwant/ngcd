@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import pika
 import sys
-from event_writer import config
+from sqlalchemy_utils.functions import database_exists, create_database
 from collections import namedtuple
 from ngcd_common import queue_configs, model
 
@@ -39,10 +39,28 @@ def parse_message(data, expected_clz):
 
     return message
 
+def get_config():
+    import os
+    from event_writer.config import Configuration
+
+    config = Configuration()
+    if 'RABBITMQ_HOST' in os.environ:
+        config.RABBITMQ_HOST = os.environ['RABBITMQ_HOST']
+
+    if 'SQLALCHEMY_DATABASE_URI' in os.environ:
+        config.SQLALCHEMY_DATABASE_URI = os.environ['SQLALCHEMY_DATABASE_URI']
+
+    return config
+
 def main():
     from sqlalchemy import create_engine
     from sqlalchemy.orm import scoped_session
     from sqlalchemy.orm import sessionmaker
+
+    config = get_config()
+    if not database_exists(config.SQLALCHEMY_DATABASE_URI):
+        create_database(config.SQLALCHEMY_DATABASE_URI)
+        
     db_engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
     db_session = scoped_session(sessionmaker(autocommit=False,
                                              autoflush=False,
@@ -50,7 +68,17 @@ def main():
 
     model.Base.query = db_session.query_property()
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection_established = False
+
+    while not connection_established:
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))
+            connection_established = True
+        except pika.exceptions.ConnectionClosed:
+            print('Unable to connect to RabbitMQ host {}. Will retry in a second!'.format(config.RABBITMQ_HOST))
+            import time
+            time.sleep(1)
+
     channel = connection.channel()
     model.Base.metadata.drop_all(db_engine)
     model.Base.metadata.create_all(db_engine)

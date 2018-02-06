@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pika
 import sys
+import os
 from collections import namedtuple
 from ngcd_common import events_pb2
 
@@ -23,9 +24,22 @@ ALL_QUEUE_CONFIGS = [
      QueueConfig('internal', 'internal.scm.repo.push', 'scm.repo.push', events_pb2.CodePushed)),
 ]
 def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    rabbitmq_host = os.environ['RABBITMQ_HOST']
+    connection_established = False
+    while not connection_established:
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host))
+            connection_established = True
+        except pika.exceptions.ConnectionClosed:
+            print('Unable to connect to RabbitMQ host {}. Will retry in a second!'.format(rabbitmq_host))
+            import time
+            time.sleep(1)
+
     channel = connection.channel()
 
+    channel.exchange_declare(exchange='external',
+                             durable=True,
+                             exchange_type='topic')
     channel.exchange_declare(exchange='internal',
                              durable=True,
                              exchange_type='topic')

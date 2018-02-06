@@ -2,16 +2,79 @@ version: '2'
 services:
   rabbitmq:
      image: rabbitmq:3-management
+     environment:
+         - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
      ports:
        - "8080:15672"
        - "5672:5672"
-  influxdb:
-    image: influxdb:latest
+
+  # influxdb:
+  #   image: influxdb:latest
+  #   ports:
+  #       - "8083:8083"
+  #       - "8086:8086"
+  #       - "8090:8090"
+  #
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   ports:
+  #     - "3000:3000"
+
+  postgres:
+    image: postgres
     ports:
-        - "8083:8083"
-        - "8086:8086"
-        - "8090:8090"
-  grafana:
-    image: grafana/grafana:latest
+      - "5433:5432"
+
+  validator:
+    build:
+      context: .
+      args:
+        APP_NAME: validator
+    command: python -u validator/run.py
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - "rabbitmq"
+
+  event_writer:
+    build:
+      context: .
+      args:
+        APP_NAME: event_writer
+    command: python -u event_writer/run.py
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - "rabbitmq"
+      - "postgres"
+
+  publisher:
+    build:
+      context: .
+      args:
+        APP_NAME: publisher
+    command: flask run -p 8080 -h 0.0.0.0
     ports:
-      - "3000:3000"
+      - "5000:8080"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - FLASK_APP=publisher.app
+      - FLASK_DEBUG=true
+    depends_on:
+      - "rabbitmq"
+
+  event_api:
+    build:
+      context: .
+      args:
+        APP_NAME: event_api
+    command: flask run -p 8080 -h 0.0.0.0
+    ports:
+      - "5001:8080"
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
+      - FLASK_APP=event_api.app
+      - FLASK_DEBUG=true
+    depends_on:
+      - "postgres"

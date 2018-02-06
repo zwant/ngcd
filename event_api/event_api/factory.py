@@ -1,15 +1,16 @@
 from flask import Flask, g
 from werkzeug.utils import find_modules, import_string
 from event_api.sqlalchemy_patch import SQLAlchemy
-from event_api import config
+from event_api.config import Configuration
 
 db = SQLAlchemy()
 
-def create_app(config_filename):
+def create_app():
     from ngcd_common.model import Base
 
     app = Flask('event_api')
-    app.config.from_pyfile(config_filename)
+    app.config.from_object(Configuration)
+
 
     from ngcd_common.model import Pipeline, PipelineStage, Repository
 

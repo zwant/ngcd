@@ -10,7 +10,8 @@ setup(
         'Flask',
         'Flask-SQLAlchemy',
         'flask-swagger',
-        'flask-swagger-ui'
+        'flask-swagger-ui',
+        'Flask-Env'
     ],
     setup_requires=[
         'pytest-runner',

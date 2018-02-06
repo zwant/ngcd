@@ -1,12 +1,11 @@
 from flask import Flask, g
 from werkzeug.utils import find_modules, import_string
 from publisher.blueprints import publisher
-from . import config
+from .config import Configuration
 
-def create_app(config_filename):
+def create_app():
     app = Flask('publisher')
-    app.config.from_pyfile(config_filename)
-
+    app.config.from_object(Configuration)
     register_blueprints(app)
     register_teardowns(app)
 
