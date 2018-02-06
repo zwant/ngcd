@@ -19,7 +19,7 @@ run-metrics-writer:
 	source env/bin/activate; cd metrics_writer; python metrics_writer/run.py
 
 run-publisher:
-	source env/bin/activate; cd publisher; FLASK_APP="publisher.app" FLASK_DEBUG=true flask run
+	source env/bin/activate; cd publisher; FLASK_APP="publisher.app" FLASK_DEBUG=true -p 5000 flask run
 
 run-event-writer:
 	source env/bin/activate; cd event_writer; python event_writer/run.py
@@ -52,19 +52,19 @@ create-events:
 	http://localhost:5000/push/otherrepo/34567/
 
 install-validator-deps:
-	source env/bin/activate; cd validator; pip install -r requirements.txt
+	source env/bin/activate; cd validator; pip install ../common .
 
 install-publisher-deps:
-	source env/bin/activate; cd publisher; pip install -r requirements.txt
+	source env/bin/activate; cd publisher; pip install ../common .
 
 install-event-writer-deps:
-	source env/bin/activate; cd event_writer; pip install -r requirements.txt
+	source env/bin/activate; cd event_writer; pip install ../common .
 
 install-metrics-writer-deps:
-	source env/bin/activate; cd metrics_writer; pip install -r requirements.txt
+	source env/bin/activate; cd metrics_writer; pip install ../common .
 
 install-event-api-deps:
-	source env/bin/activate; cd event_api; pip install -r requirements.txt
+	source env/bin/activate; cd event_api; pip install ../common .
 
 install-deps: install-validator-deps install-publisher-deps install-event-writer-deps install-event-api-deps
 

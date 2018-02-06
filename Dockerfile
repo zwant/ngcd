@@ -4,10 +4,14 @@ ARG APP_NAME
 
 WORKDIR /usr/src/app
 
-COPY $APP_NAME $APP_NAME
+# Install common package
 COPY common ./common
+RUN pip install ./common
 
-EXPOSE 8080
+# Install application
+COPY $APP_NAME $APP_NAME
 
 WORKDIR /usr/src/app/$APP_NAME
-RUN pip install -r requirements.txt
+RUN pip install .
+
+EXPOSE 8080
