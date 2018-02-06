@@ -51,22 +51,25 @@ create-events:
 	'{"timestamp": "2012-04-23T18:25:43.511Z","new_head_sha": "34567","previous_head_sha": "23456","user": {"id": "1","username": "svante","email": "dummy@example.com"},"commits": [{"sha": "23456","message": "test commit!", "timestamp": "2012-04-23T18:25:43.511Z"},{"sha": "34567","message": "test commit number 2!", "timestamp": "2012-04-23T18:25:43.511Z"}]}' \
 	http://localhost:5000/push/otherrepo/34567/
 
+install-common-deps:
+	source env/bin/activate; cd common; pip install -e .
+
 install-validator-deps:
-	source env/bin/activate; cd validator; pip install ../common .
+	source env/bin/activate; cd validator; pip install -e .
 
 install-publisher-deps:
-	source env/bin/activate; cd publisher; pip install ../common .
+	source env/bin/activate; cd publisher; pip install -e .
 
 install-event-writer-deps:
-	source env/bin/activate; cd event_writer; pip install ../common .
+	source env/bin/activate; cd event_writer; pip install -e .
 
 install-metrics-writer-deps:
-	source env/bin/activate; cd metrics_writer; pip install ../common .
+	source env/bin/activate; cd metrics_writer; pip install - e .
 
 install-event-api-deps:
-	source env/bin/activate; cd event_api; pip install ../common .
+	source env/bin/activate; cd event_api; pip install -e .
 
-install-deps: install-validator-deps install-publisher-deps install-event-writer-deps install-event-api-deps
+install-deps: install-common-deps install-validator-deps install-publisher-deps install-event-writer-deps install-event-api-deps
 
 create-venv:
 	python3 -m venv env
