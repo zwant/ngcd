@@ -1,0 +1,57 @@
+Get a pipeline stage
+---
+tags:
+  - pipeline-stages
+parameters:
+  - in: path
+    name: pipeline_external_id
+    type: string
+    required: true
+    description: The external id of the pipeline that the stage should belong to
+  - in: path
+    name: external_id
+    type: string
+    required: true
+    description: The external id of the pipeline stage to get
+produces:
+    - application/json
+responses:
+  '200':
+    description: The pipeline stage found.
+    schema:
+      type: object
+      properties:
+        pipeline_id:
+          description: The ID of the pipeline that this stage belongs to
+          type: string
+        average_duration:
+          description: The average duration, in milliseconds
+          type: integer
+        currently_running:
+          description: If this pipeline is currently running
+          type: boolean
+        external_id:
+          description: The external id of the pipeline, same as what was passed in
+          type: string
+          example: test-pipeline
+        finished_running_at:
+          description: The time when this pipeline finished running (if it has done so)
+          type: string
+          format: date-time
+        id:
+          type: integer
+        last_duration:
+          type: integer
+        last_update:
+          type: string
+          format: date-time
+        number_of_runs:
+          type: integer
+        result:
+          type: string
+          enum: [SUCCESS, FAILED, ABORTED]
+        started_running_at:
+          type: string
+          format: date-time
+  '404':
+    description: No pipeline stages with the given external id was not found.

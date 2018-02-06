@@ -10,6 +10,10 @@ bp = Blueprint('events', __name__)
 
 @bp.route("/pipeline/<external_id>/")
 def pipeline(external_id=None):
+    """
+    swagger_from_file: event_api/blueprints/swagger_docs/pipeline.yaml
+
+    """
     projector = Projector(db.session)
     projector.process_events()
     pipeline = model.Pipeline.query \
@@ -26,17 +30,22 @@ def pipeline(external_id=None):
     return jsonify({"pipeline": pipeline.as_dict(),
                     "stages": [stage.as_dict() for stage in stages]})
 
-@bp.route("/pipeline_stage/<external_id>/")
-def pipeline_stage(external_id=None):
+@bp.route("/pipeline_stage/<pipeline_external_id>/<external_id>/")
+def pipeline_stage(pipeline_external_id=None, external_id=None):
+    """
+    swagger_from_file: event_api/blueprints/swagger_docs/pipeline_stage.yaml
+
+    """
     projector = Projector(db.session)
     projector.process_events()
-    stages = model.PipelineStage.query \
+    stage = model.PipelineStage.query \
+                .filter(model.PipelineStage.pipeline_id == pipeline_external_id) \
                 .filter(model.PipelineStage.external_id == external_id) \
                 .order_by(model.PipelineStage.last_update.asc()) \
-                .all()
-    if not stages:
+                .first()
+    if not stage:
         abort(404)
-    return jsonify([stage.as_dict() for stage in stages])
+    return jsonify(stage.as_dict())
 
 @bp.route("/repository/<repo_name>/")
 def repository(repo_name=None):

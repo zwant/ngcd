@@ -8,7 +8,9 @@ setup(
         'pika',
         'SQLAlchemy',
         'Flask',
-        'Flask-SQLAlchemy'
+        'Flask-SQLAlchemy',
+        'flask-swagger',
+        'flask-swagger-ui'
     ],
     setup_requires=[
         'pytest-runner',

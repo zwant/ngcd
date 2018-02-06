@@ -24,11 +24,31 @@ def create_app(config_filename):
         Repository.__table__.create(db.session.bind, checkfirst=True)
 
     register_blueprints(app)
+    register_swagger_ui(app)
 
     return app
 
+def register_swagger_ui(app):
+    from flask_swagger_ui import get_swaggerui_blueprint
+
+    SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
+    API_URL = 'http://localhost:5001/api/swagger/'  # Our API url (can of course be a local resource)
+
+    # Call factory function to create our blueprint
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        SWAGGER_URL,  # Swagger UI static files will be mapped to '{SWAGGER_URL}/dist/'
+        API_URL,
+        config={  # Swagger UI config overrides
+            'app_name': "Event API"
+        }
+    )
+
+    # Register blueprint at URL
+    # (URL must match the one given to factory function above)
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
 def register_blueprints(app):
-    from event_api.blueprints import events
+    from event_api.blueprints import events, swagger
     for name in find_modules('event_api.blueprints'):
         mod = import_string(name)
         if hasattr(mod, 'bp'):
