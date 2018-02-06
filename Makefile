@@ -6,6 +6,9 @@ proto:
 clean:
 	rm -f ./common/ngcd_common/events_pb2.py*
 
+test-common:
+	source env/bin/activate; cd common; python setup.py test
+
 run-validator:
 	source env/bin/activate; cd validator; python validator/run.py
 
@@ -71,4 +74,4 @@ install-deps: install-common-deps install-validator-deps install-publisher-deps 
 create-venv:
 	python3 -m venv env
 
-test: test-validator
+test: test-validator test-common

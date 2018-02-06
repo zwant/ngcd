@@ -39,17 +39,21 @@ class RepositoryProjection(Projection):
         return body['repositoryName']
 
     @classmethod
+    def apply_event_to_model(cls, model, event):
+        if event.type == 'CodePushed':
+            model.name = event.body['repositoryName']
+            model.head_sha = event.body['newHeadSha']
+            model.previous_head_sha = event.body['previousHeadSha']
+            model.last_pusher = event.body['pusher']
+            if not model.commits:
+                model.commits = []
+            model.commits.append(event.body['commits'])
+            model.last_update = event.body['timestamp']
+
+    @classmethod
     def handle_event(cls, session, event):
         repo = cls.get_or_create_with_external_id(cls.get_external_id_from_body(event.body), RepositoryModel)
-
-        if event.type == 'CodePushed':
-            repo.name = event.body['repositoryName']
-            repo.head_sha = event.body['newHeadSha']
-            repo.previous_head_sha = event.body['previousHeadSha']
-            repo.last_pusher = event.body['pusher']
-            repo.commits = event.body['commits']
-            repo.last_update = event.body['timestamp']
-
+        cls.apply_event_to_model(repo, event)
         session.merge(repo)
 
 class PipelineStageProjection(Projection):
@@ -62,6 +66,19 @@ class PipelineStageProjection(Projection):
         return body['uuid']
 
     @classmethod
+    def apply_event_to_model(cls, model, event):
+        if event.type == 'PipelineStageStarted':
+            model.currently_running = True
+            model.started_running_at = event.body['timestamp']
+        elif event.type == 'PipelineStageFinished':
+            model.currently_running = False
+            model.result = event.body['result']
+            model.finished_running_at = event.body['timestamp']
+
+        model.pipeline_id = event.body['pipelineUuid']
+        model.last_update = event.body['timestamp']
+
+    @classmethod
     def handle_event(cls, session, event):
         external_id = cls.get_external_id_from_body(event.body)
         query = PipelineStageModel.query.filter(PipelineStageModel.external_id==external_id) \
@@ -69,17 +86,8 @@ class PipelineStageProjection(Projection):
         pipeline_stage = cls.get_or_create_by_query(external_id,
                                                     query,
                                                     PipelineStageModel)
+        cls.apply_event_to_model(pipeline_stage, event)
 
-        if event.type == 'PipelineStageStarted':
-            pipeline_stage.currently_running = True
-            pipeline_stage.started_running_at = event.body['timestamp']
-        elif event.type == 'PipelineStageFinished':
-            pipeline_stage.currently_running = False
-            pipeline_stage.result = event.body['result']
-            pipeline_stage.finished_running_at = event.body['timestamp']
-
-        pipeline_stage.pipeline_id = event.body['pipelineUuid']
-        pipeline_stage.last_update = event.body['timestamp']
         session.merge(pipeline_stage)
 
 class PipelineProjection(Projection):
@@ -92,16 +100,29 @@ class PipelineProjection(Projection):
         return body['uuid']
 
     @classmethod
+    def apply_event_to_model(cls, model, event):
+        if event.type == 'PipelineStarted':
+            model.currently_running = True
+            model.started_running_at = event.body['timestamp']
+        elif event.type == 'PipelineFinished':
+            model.currently_running = False
+            model.result = event.body['result']
+            model.finished_running_at = event.body['timestamp']
+            model.average_duration = cls.calculate_average_duration(model.number_of_runs, model.average_duration, event.body['durationMs'])
+            model.number_of_runs = model.number_of_runs + 1
+
+        model.last_update = event.body['timestamp']
+
+    @classmethod
+    def calculate_average_duration(cls, prev_num_runs, prev_duration_avg, new_duration):
+        if prev_num_runs < 1:
+            return new_duration
+
+        return ((prev_duration_avg * prev_num_runs) + new_duration)/(prev_num_runs + 1)
+
+    @classmethod
     def handle_event(cls, session, event):
         pipeline = cls.get_or_create_with_external_id(cls.get_external_id_from_body(event.body), PipelineModel)
+        cls.apply_event_to_model(pipeline, event)
 
-        if event.type == 'PipelineStarted':
-            pipeline.currently_running = True
-            pipeline.started_running_at = event.body['timestamp']
-        elif event.type == 'PipelineFinished':
-            pipeline.currently_running = False
-            pipeline.result = event.body['result']
-            pipeline.finished_running_at = event.body['timestamp']
-
-        pipeline.last_update = event.body['timestamp']
         session.merge(pipeline)

@@ -12,18 +12,34 @@ class Pipeline(Base):
     __tablename__ = 'pipelines'
     id = Column(Integer, primary_key=True)
     external_id = Column(String, nullable=False, index=True)
-    currently_running = Column(Boolean, nullable=False, server_default='false')
+    currently_running = Column(Boolean, nullable=False)
     result = Column(String, nullable=True)
     last_update = Column(TIMESTAMP(timezone=True), nullable=False)
     started_running_at = Column(TIMESTAMP(timezone=True), nullable=True)
     finished_running_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    number_of_runs = Column(Integer, nullable=True)
+    average_duration = Column(Integer, nullable=True)
+
+    def __init__(self, external_id, currently_running=False, result=None, last_update=None,
+                 started_running_at=None, finished_running_at=None, number_of_runs=0,
+                 average_duration=None):
+        self.external_id = external_id
+        self.currently_running = currently_running
+        self.result = result
+        self.last_update = last_update
+        self.started_running_at = started_running_at
+        self.finished_running_at = finished_running_at
+        self.number_of_runs = number_of_runs
+        self.average_duration = average_duration
 
     def __repr__(self):
-        return '<Pipeline {}>, last_update: {}, currently_running: {}, result: {}'.format(
+        return '<Pipeline {}>, last_update: {}, currently_running: {}, result: {}, number_of_runs: {}, average_duration: {}'.format(
         self.external_id,
         self.last_update,
         self.currently_running,
-        self.result)
+        self.result,
+        self.number_of_runs,
+        self.average_duration)
 
     def as_dict(self):
         return {
@@ -32,8 +48,10 @@ class Pipeline(Base):
             'last_update': self.last_update,
             'currently_running': self.currently_running,
             'result': self.result,
+            'number_of_runs': self.number_of_runs,
             'started_running_at': self.started_running_at,
-            'finished_running_at': self.finished_running_at
+            'finished_running_at': self.finished_running_at,
+            'average_duration': self.average_duration
         }
 
 class PipelineStage(Base):
