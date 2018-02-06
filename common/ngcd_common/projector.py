@@ -1,8 +1,9 @@
 from ngcd_common.model import Event
-from ngcd_common.projections import Projection, PipelineProjection, PipelineStageProjection, RepositoryProjection
+from ngcd_common.projections import Projection
 
 class Projector(object):
-    event_handling_classes = [PipelineProjection, PipelineStageProjection, RepositoryProjection]
+    event_handling_classes = Projection.__subclasses__()
+
     last_processed_event_id = 0
     db_session = None
 
