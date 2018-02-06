@@ -1,6 +1,13 @@
 from ngcd_common.model import Event, Pipeline as PipelineModel, PipelineStage as PipelineStageModel, Repository as RepositoryModel
 from copy import deepcopy
 
+
+def calculate_average_duration(prev_num_runs, prev_duration_avg, new_duration):
+    if prev_num_runs < 1:
+        return new_duration
+
+    return ((prev_duration_avg * prev_num_runs) + new_duration)/(prev_num_runs + 1)
+
 class Projection(object):
     @classmethod
     def get_interesting_events(cls):
@@ -74,6 +81,9 @@ class PipelineStageProjection(Projection):
             model.currently_running = False
             model.result = event.body['result']
             model.finished_running_at = event.body['timestamp']
+            model.last_duration = event.body['durationMs']
+            model.average_duration = calculate_average_duration(model.number_of_runs, model.average_duration, event.body['durationMs'])
+            model.number_of_runs = model.number_of_runs + 1
 
         model.pipeline_id = event.body['pipelineUuid']
         model.last_update = event.body['timestamp']
@@ -108,17 +118,11 @@ class PipelineProjection(Projection):
             model.currently_running = False
             model.result = event.body['result']
             model.finished_running_at = event.body['timestamp']
-            model.average_duration = cls.calculate_average_duration(model.number_of_runs, model.average_duration, event.body['durationMs'])
+            model.last_duration = event.body['durationMs']
+            model.average_duration = calculate_average_duration(model.number_of_runs, model.average_duration, event.body['durationMs'])
             model.number_of_runs = model.number_of_runs + 1
 
         model.last_update = event.body['timestamp']
-
-    @classmethod
-    def calculate_average_duration(cls, prev_num_runs, prev_duration_avg, new_duration):
-        if prev_num_runs < 1:
-            return new_duration
-
-        return ((prev_duration_avg * prev_num_runs) + new_duration)/(prev_num_runs + 1)
 
     @classmethod
     def handle_event(cls, session, event):
