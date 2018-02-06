@@ -7,4 +7,4 @@ class Configuration(metaclass=MetaFlaskEnv):
 
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres@localhost:5432/event_api'
     SQLALCHEMY_TRACK_MODIFICATIONS = 'false'
-    PORT = 5001
+    CLEAN_DB = False

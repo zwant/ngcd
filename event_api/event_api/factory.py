@@ -11,15 +11,18 @@ def create_app():
     app = Flask('event_api')
     app.config.from_object(Configuration)
 
-
     from ngcd_common.model import Pipeline, PipelineStage, Repository
 
     db.init_app(app)
     db.register_base(Base)
     with app.app_context():
-        Pipeline.__table__.drop(db.session.bind, checkfirst=True)
-        PipelineStage.__table__.drop(db.session.bind, checkfirst=True)
-        Repository.__table__.drop(db.session.bind, checkfirst=True)
+        if app.config['CLEAN_DB'] == True:
+            print('Cleaning DB')
+            Pipeline.__table__.drop(db.session.bind, checkfirst=True)
+            PipelineStage.__table__.drop(db.session.bind, checkfirst=True)
+            Repository.__table__.drop(db.session.bind, checkfirst=True)
+        else:
+            print('Not cleaning DB')
         Pipeline.__table__.create(db.session.bind, checkfirst=True)
         PipelineStage.__table__.create(db.session.bind, checkfirst=True)
         Repository.__table__.create(db.session.bind, checkfirst=True)

@@ -45,6 +45,7 @@ services:
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
       - RABBITMQ_HOST=rabbitmq
+      - CLEAN_DB=true
     depends_on:
       - "rabbitmq"
       - "postgres"
@@ -76,5 +77,6 @@ services:
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
       - FLASK_APP=event_api.app
       - FLASK_DEBUG=true
+      - CLEAN_DB=true
     depends_on:
       - "postgres"

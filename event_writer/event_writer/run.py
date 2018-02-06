@@ -43,14 +43,7 @@ def get_config():
     import os
     from event_writer.config import Configuration
 
-    config = Configuration()
-    if 'RABBITMQ_HOST' in os.environ:
-        config.RABBITMQ_HOST = os.environ['RABBITMQ_HOST']
-
-    if 'SQLALCHEMY_DATABASE_URI' in os.environ:
-        config.SQLALCHEMY_DATABASE_URI = os.environ['SQLALCHEMY_DATABASE_URI']
-
-    return config
+    return Configuration(os.environ)
 
 def main():
     from sqlalchemy import create_engine
@@ -60,7 +53,7 @@ def main():
     config = get_config()
     if not database_exists(config.SQLALCHEMY_DATABASE_URI):
         create_database(config.SQLALCHEMY_DATABASE_URI)
-        
+
     db_engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
     db_session = scoped_session(sessionmaker(autocommit=False,
                                              autoflush=False,
@@ -80,7 +73,11 @@ def main():
             time.sleep(1)
 
     channel = connection.channel()
-    model.Base.metadata.drop_all(db_engine)
+    if config.CLEAN_DB == True:
+        print('Cleaning DB')
+        model.Base.metadata.drop_all(db_engine)
+    else:
+        print('Not cleaning DB')
     model.Base.metadata.create_all(db_engine)
 
     print('Setting up queue workers')

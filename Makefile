@@ -22,10 +22,10 @@ run-publisher:
 	source env/bin/activate; cd publisher; FLASK_APP="publisher.app" FLASK_DEBUG=true -p 5000 flask run
 
 run-event-writer:
-	source env/bin/activate; cd event_writer; python event_writer/run.py
+	source env/bin/activate; cd event_writer; CLEAN_DB="true" python event_writer/run.py
 
 run-event-api:
-	source env/bin/activate; cd event_api; FLASK_APP="event_api.app" FLASK_DEBUG=true flask run -p 5001 --reload
+	source env/bin/activate; cd event_api; CLEAN_DB="true" FLASK_APP="event_api.app" FLASK_DEBUG=true flask run -p 5001 --reload
 
 create-events:
 	curl -s --output /dev/null -H "Content-Type: application/json" -X POST -d \
