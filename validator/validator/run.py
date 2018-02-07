@@ -41,15 +41,16 @@ ALL_QUEUE_CONFIGS = [
 ]
 
 def main():
-    setup_logging()
-    rabbitmq_host = os.environ['RABBITMQ_HOST']
+    config = get_config()
+    setup_logging(config)
+
     connection_established = False
     while not connection_established:
         try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host))
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))
             connection_established = True
         except pika.exceptions.ConnectionClosed:
-            logger.error('Unable to connect to RabbitMQ host [%s]. Will retry in a second!', rabbitmq_host)
+            logger.error('Unable to connect to RabbitMQ host [%s]. Will retry in a second!', config.RABBITMQ_HOST)
             import time
             time.sleep(1)
 
@@ -65,14 +66,21 @@ def main():
     logger.info('Setting up [%s] converters', len(ALL_QUEUE_CONFIGS))
     for src_config, dst_config in ALL_QUEUE_CONFIGS:
         setup_converter(channel, src_config, dst_config)
-    logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', rabbitmq_host)
+    logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
 
     channel.start_consuming()
 
-def setup_logging():
+def get_config():
+    import os
+    from validator.config import Configuration
+
+    return Configuration(os.environ)
+
+def setup_logging(config):
     import logging.config
     import yaml
-    path = 'validator/logging.yaml'
+    
+    path = config.LOGCONFIG
     if os.path.exists(path):
         with open(path, 'rt') as f:
             try:
