@@ -53,8 +53,8 @@ class Pipeline(Base):
             'currently_running': self.currently_running,
             'result': self.result,
             'number_of_runs': self.number_of_runs,
-            'started_running_at': self.started_running_at.isoformat(),
-            'finished_running_at': self.finished_running_at.isoformat(),
+            'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
+            'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
             'average_duration': self.average_duration,
             'last_duration': self.last_duration
         }
@@ -106,8 +106,8 @@ class PipelineStage(Base):
             'last_update': self.last_update.isoformat(),
             'currently_running': self.currently_running,
             'result': self.result,
-            'started_running_at': self.started_running_at.isoformat(),
-            'finished_running_at': self.finished_running_at.isoformat(),
+            'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
+            'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
             'number_of_runs': self.number_of_runs,
             'average_duration': self.average_duration,
             'last_duration': self.last_duration
