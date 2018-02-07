@@ -9,6 +9,50 @@ import os
 
 logger = logging.getLogger('event_writer')
 
+def main():
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import scoped_session
+    from sqlalchemy.orm import sessionmaker
+
+    config = get_config()
+    setup_logging(config)
+    if not database_exists(config.SQLALCHEMY_DATABASE_URI):
+        create_database(config.SQLALCHEMY_DATABASE_URI)
+
+    db_engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
+    db_session = scoped_session(sessionmaker(autocommit=False,
+                                             autoflush=False,
+                                             bind=db_engine))
+
+    model.Base.query = db_session.query_property()
+
+    connection_established = False
+
+    while not connection_established:
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))
+            connection_established = True
+        except pika.exceptions.ConnectionClosed:
+            logger.error('Unable to connect to RabbitMQ host [%s]. Will retry in a second!', config.RABBITMQ_HOST)
+            import time
+            time.sleep(1)
+
+    channel = connection.channel()
+    if config.CLEAN_DB == True:
+        logger.info('Cleaning DB')
+        model.Base.metadata.drop_all(db_engine)
+    else:
+        logger.info('Not cleaning DB')
+    model.Base.metadata.create_all(db_engine)
+
+    logger.info('Setting up queue workers')
+    setup_listener(db_session, channel, 'internal', 'internal.pipeline.all', 'pipeline.#')
+    setup_listener(db_session, channel, 'internal', 'internal.scm.all', 'scm.#')
+    setup_listener(db_session, channel, 'internal', 'internal.artifact.all', 'artifact.#')
+    logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
+
+    channel.start_consuming()
+
 def make_callback(db_session):
     def callback(ch, method, properties, body):
         expected_clz = queue_configs.handle_headers(properties.headers)
@@ -63,50 +107,6 @@ def setup_logging(config):
     else:
         raise Exception('Failed to read log config from {}'.format(path))
     logging.config.dictConfig(config)
-
-def main():
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import scoped_session
-    from sqlalchemy.orm import sessionmaker
-
-    config = get_config()
-    setup_logging(config)
-    if not database_exists(config.SQLALCHEMY_DATABASE_URI):
-        create_database(config.SQLALCHEMY_DATABASE_URI)
-
-    db_engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
-    db_session = scoped_session(sessionmaker(autocommit=False,
-                                             autoflush=False,
-                                             bind=db_engine))
-
-    model.Base.query = db_session.query_property()
-
-    connection_established = False
-
-    while not connection_established:
-        try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))
-            connection_established = True
-        except pika.exceptions.ConnectionClosed:
-            logger.error('Unable to connect to RabbitMQ host [%s]. Will retry in a second!', config.RABBITMQ_HOST)
-            import time
-            time.sleep(1)
-
-    channel = connection.channel()
-    if config.CLEAN_DB == True:
-        logger.info('Cleaning DB')
-        model.Base.metadata.drop_all(db_engine)
-    else:
-        logger.info('Not cleaning DB')
-    model.Base.metadata.create_all(db_engine)
-
-    logger.info('Setting up queue workers')
-    setup_listener(db_session, channel, 'internal', 'internal.pipeline.all', 'pipeline.#')
-    setup_listener(db_session, channel, 'internal', 'internal.scm.all', 'scm.#')
-    setup_listener(db_session, channel, 'internal', 'internal.artifact.all', 'artifact.#')
-    logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
-
-    channel.start_consuming()
 
 if __name__ == '__main__':
     main()
