@@ -13,12 +13,12 @@ def make_callback(db_session):
     def callback(ch, method, properties, body):
         expected_clz = queue_configs.handle_headers(properties.headers)
         if not expected_clz:
-            logger.warn('Dont know how to handle message with headers {}, throwing it away'.format(properties.headers))
+            logger.warn('Dont know how to handle message with headers [%s], throwing it away', properties.headers)
             ch.basic_ack(delivery_tag = method.delivery_tag)
             return
 
         parsed_data = parse_message(body, expected_clz)
-        logger.debug('Received 1 message with routing key {}, of type {}'.format(method.routing_key, expected_clz.__name__))
+        logger.debug('Received 1 message with routing key [%s], of type [%s]', method.routing_key, expected_clz.__name__)
         model.Event.write_event(db_session, parsed_data)
         ch.basic_ack(delivery_tag = method.delivery_tag)
     return callback
@@ -32,7 +32,7 @@ def create_queue(channel, exchange, queue_name, routing_key):
     return queue_result.method.queue
 
 def setup_listener(db_session, channel, exchange, queue_name, routing_key):
-    logger.info('Setting up listener on exchange [{}], queue [{}] with routing key [{}]'.format(exchange, queue_name, routing_key))
+    logger.info('Setting up listener on exchange [%s], queue [%s] with routing key [%s]', exchange, queue_name, routing_key)
     created_queue_name = create_queue(channel, exchange, queue_name, routing_key)
     channel.basic_consume(make_callback(db_session),
                           queue=created_queue_name)
@@ -88,7 +88,7 @@ def main():
             connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))
             connection_established = True
         except pika.exceptions.ConnectionClosed:
-            logger.error('Unable to connect to RabbitMQ host {}. Will retry in a second!'.format(config.RABBITMQ_HOST))
+            logger.error('Unable to connect to RabbitMQ host [%s]. Will retry in a second!', config.RABBITMQ_HOST)
             import time
             time.sleep(1)
 
@@ -104,7 +104,7 @@ def main():
     setup_listener(db_session, channel, 'internal', 'internal.pipeline.all', 'pipeline.#')
     setup_listener(db_session, channel, 'internal', 'internal.scm.all', 'scm.#')
     setup_listener(db_session, channel, 'internal', 'internal.artifact.all', 'artifact.#')
-    logger.info('[*] Waiting for data. To exit press CTRL+C')
+    logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
 
     channel.start_consuming()
 

@@ -49,7 +49,7 @@ def main():
             connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host))
             connection_established = True
         except pika.exceptions.ConnectionClosed:
-            logger.error('Unable to connect to RabbitMQ host {}. Will retry in a second!'.format(rabbitmq_host))
+            logger.error('Unable to connect to RabbitMQ host [%s]. Will retry in a second!', rabbitmq_host)
             import time
             time.sleep(1)
 
@@ -62,10 +62,10 @@ def main():
                              durable=True,
                              exchange_type='topic')
 
-    logger.info('Setting up {} converters'.format(len(ALL_QUEUE_CONFIGS)))
+    logger.info('Setting up [%s] converters', len(ALL_QUEUE_CONFIGS))
     for src_config, dst_config in ALL_QUEUE_CONFIGS:
         setup_converter(channel, src_config, dst_config)
-    logger.info('[*] Waiting for data. To exit press CTRL+C')
+    logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', rabbitmq_host)
 
     channel.start_consuming()
 
@@ -97,7 +97,7 @@ def create_callback(src_queue_config, dst_queue_config):
                             headers=headers
                          ))
         ch.basic_ack(delivery_tag = method.delivery_tag)
-        logger.debug('Forwarded 1 message from {} to {}'.format(src_queue_config.name, dst_queue_config.name))
+        logger.debug('Forwarded 1 message from [%s] to [%s]', src_queue_config.name, dst_queue_config.name)
     return callback
 
 def create_queue_from_config(channel, queue_config):

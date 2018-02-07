@@ -22,7 +22,7 @@ class Projector(object):
                 continue
             if i > until:
                 return
-            getLogger().debug('Processing event {} of type {}'.format(event.id, event.type))
+            getLogger().debug('Processing event [%s] of type [%s]', event.id, event.type)
             self.handle_event(event)
             i = i+1
             self.db_session.commit()
@@ -30,7 +30,7 @@ class Projector(object):
     def handle_event(self, event):
         for event_handle_class in self.event_handling_classes:
             if event.type in event_handle_class.get_interesting_events():
-                getLogger().debug('Handling event {} of type {} with class {}'.format(event.id, event.type, event_handle_class))
+                getLogger().debug('Handling event [%s] of type [%s] with class [%s]', event.id, event.type, event_handle_class)
                 event_handle_class.handle_event(self.db_session, event)
 
         self.last_processed_event_id = event.id
