@@ -2,6 +2,7 @@ class Configuration(object):
     RABBITMQ_HOST = "localhost"
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres@localhost:5433/event_api'
     CLEAN_DB = False
+    LOGCONFIG = 'event_writer/logging.yaml'
 
     def __init__(self, env):
         if 'RABBITMQ_HOST' in env:
