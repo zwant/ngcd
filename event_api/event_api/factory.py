@@ -2,6 +2,11 @@ from flask import Flask, g
 from werkzeug.utils import find_modules, import_string
 from event_api.sqlalchemy_patch import SQLAlchemy
 from event_api.config import Configuration
+import logging
+import logging.config
+import sys
+import os
+import yaml
 
 db = SQLAlchemy()
 
@@ -10,19 +15,21 @@ def create_app():
 
     app = Flask('event_api')
     app.config.from_object(Configuration)
+    setup_logging(app)
 
     from ngcd_common.model import Pipeline, PipelineStage, Repository
 
     db.init_app(app)
     db.register_base(Base)
+
     with app.app_context():
         if app.config['CLEAN_DB'] == True:
-            print('Cleaning DB')
+            app.logger.info('Cleaning DB')
             Pipeline.__table__.drop(db.session.bind, checkfirst=True)
             PipelineStage.__table__.drop(db.session.bind, checkfirst=True)
             Repository.__table__.drop(db.session.bind, checkfirst=True)
         else:
-            print('Not cleaning DB')
+            app.logger.info('Not cleaning DB')
         Pipeline.__table__.create(db.session.bind, checkfirst=True)
         PipelineStage.__table__.create(db.session.bind, checkfirst=True)
         Repository.__table__.create(db.session.bind, checkfirst=True)
@@ -30,7 +37,22 @@ def create_app():
     register_blueprints(app)
     register_swagger_ui(app)
 
+
     return app
+
+def setup_logging(app):
+    path = app.config['LOGCONFIG']
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            try:
+                config = yaml.safe_load(f.read())
+            except Exception as e:
+                raise Exception('Failed to read log config from {}'.format(path), e)
+    else:
+        raise Exception('Failed to read log config from {}'.format(path))
+    app.logger
+    logging.config.dictConfig(config)
+
 
 def register_swagger_ui(app):
     from flask_swagger_ui import get_swaggerui_blueprint

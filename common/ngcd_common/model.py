@@ -1,5 +1,6 @@
 import pytz
 
+from ngcd_common import getLogger
 from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMP
 from google.protobuf.json_format import MessageToDict
 from sqlalchemy import Column, Integer, String, DateTime, func, Boolean
@@ -212,7 +213,7 @@ class Event(Base):
         event_model = Event(type=type(event_pb).__name__,
                             body=MessageToDict(event_pb, including_default_value_fields=True),
                             event_origin_time=cls._get_event_origin_time(event_pb))
-        print('Saving Event: {}'.format(event_model))
+        getLogger().debug('Saving Event: {}'.format(event_model))
         session.add(event_model)
         session.commit()
 
