@@ -1,6 +1,6 @@
 class Configuration(object):
     RABBITMQ_HOST = "localhost"
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres@localhost:5432/event_api'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres@localhost:5433/event_api'
     CLEAN_DB = False
 
     def __init__(self, env):

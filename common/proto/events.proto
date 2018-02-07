@@ -4,7 +4,9 @@ package events;
 
 import "google/protobuf/timestamp.proto";
 
-
+/////////////////////
+// Pipelines & Stages
+/////////////////////
 enum Result {
     SUCCESS = 0;
     FAILURE = 1;
@@ -37,6 +39,9 @@ message PipelineStageFinished {
   Result result = 5;
 }
 
+///////////////
+// Code & Repos
+///////////////
 message ScmUser {
     string id = 1;
     string username = 2;
@@ -50,8 +55,22 @@ message ScmCommit {
     google.protobuf.Timestamp timestamp = 4;
 }
 
+enum RepoType {
+    PUBLIC_GITHUB = 0;
+    GITHUB_ENTERPRISE = 1;
+    GITLAB = 2;
+    PUBLIC_BITBUCKET = 3;
+    BITBUCKET_ENTERPRISE = 4;
+}
+
+message RepoIdentifier {
+    string short_name = 1;
+    string full_name = 2;
+    RepoType repo_type = 5;
+}
+
 message CodePushed {
-    string repository_name = 1;
+    RepoIdentifier identifier = 1;
     string new_head_sha = 2;
     string previous_head_sha = 3;
     ScmUser pusher = 4;
@@ -59,11 +78,32 @@ message CodePushed {
     google.protobuf.Timestamp timestamp = 6;
 }
 
+message RepositoryAdded {
+    RepoIdentifier identifier = 1;
+    string description = 2;
+    string html_url = 3;
+    string api_url = 4;
+    ScmUser performed_by = 5;
+    google.protobuf.Timestamp timestamp = 6;
+}
+
+message RepositoryRemoved {
+    RepoIdentifier identifier = 1;
+    ScmUser performed_by = 4;
+    google.protobuf.Timestamp timestamp = 6;
+}
+
+////////////
+// Artifacts
+////////////
+message ArtifactPublished {
+    string component_name = 1;
+    string version = 2;
+    string download_url = 3;
+    google.protobuf.Timestamp timestamp = 4;
+}
 // DeployStarted
 // DeployFinished
-// ArtifactPublished
 // PullRequestOpened
 // PullRequestClosed
 // CodeReviewAccepted
-// RepositoryAdded
-// RepositoryRemoved

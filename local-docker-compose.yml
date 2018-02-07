@@ -1,0 +1,26 @@
+version: '2'
+services:
+  rabbitmq:
+     image: rabbitmq:3-management
+     environment:
+         - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
+     ports:
+       - "8080:15672"
+       - "5672:5672"
+
+  # influxdb:
+  #   image: influxdb:latest
+  #   ports:
+  #       - "8083:8083"
+  #       - "8086:8086"
+  #       - "8090:8090"
+  #
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   ports:
+  #     - "3000:3000"
+
+  postgres:
+    image: postgres
+    ports:
+      - "5433:5432"

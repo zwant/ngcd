@@ -29,6 +29,7 @@ def create_queue(channel, exchange, queue_name, routing_key):
     return queue_result.method.queue
 
 def setup_listener(db_session, channel, exchange, queue_name, routing_key):
+    print('Setting up listener on exchange [{}], queue [{}] with routing key [{}]'.format(exchange, queue_name, routing_key))
     created_queue_name = create_queue(channel, exchange, queue_name, routing_key)
     channel.basic_consume(make_callback(db_session),
                           queue=created_queue_name)
@@ -83,6 +84,7 @@ def main():
     print('Setting up queue workers')
     setup_listener(db_session, channel, 'internal', 'internal.pipeline.all', 'pipeline.#')
     setup_listener(db_session, channel, 'internal', 'internal.scm.all', 'scm.#')
+    setup_listener(db_session, channel, 'internal', 'internal.artifact.all', 'artifact.#')
     print(' [*] Waiting for data. To exit press CTRL+C')
 
     channel.start_consuming()

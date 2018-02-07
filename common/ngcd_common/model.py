@@ -116,17 +116,62 @@ class Repository(Base):
     __tablename__ = 'repositories'
     id = Column(Integer, primary_key=True)
     external_id = Column(String, nullable=False, index=True)
-    name = Column(String, nullable=False, unique=True, index=True)
+    is_deleted = Column(Boolean, nullable=False, index=True)
+    short_name = Column(String, nullable=False)
+    full_name = Column(String, nullable=False, unique=True, index=True)
+    type = Column(String, nullable=False, index=True)
+    description = Column(String, nullable=True)
+    html_url = Column(String, nullable=True)
+    api_url = Column(String, nullable=True)
+    created_by = Column(JSONB, nullable=True)
+    deleted_by = Column(JSONB, nullable=True)
     last_pusher = Column(JSONB, nullable=False)
-    head_sha = Column(String, nullable=False)
-    previous_head_sha = Column(String, nullable=False)
+    head_sha = Column(String, nullable=True)
+    previous_head_sha = Column(String, nullable=True)
     last_update = Column(TIMESTAMP(timezone=True), nullable=False)
     commits = Column(JSONB, nullable=False, index=True)
 
+    def __init__(self,
+                 external_id,
+                 is_deleted=False,
+                 short_name=None,
+                 full_name=None,
+                 type=None,
+                 description=None,
+                 html_url=None,
+                 api_url=None,
+                 created_by=None,
+                 deleted_by=None,
+                 last_pusher=None,
+                 head_sha=None,
+                 previous_head_sha=None,
+                 last_update=None,
+                 commits=None):
+        self.external_id = external_id
+        self.is_deleted = is_deleted
+        self.short_name = short_name
+        self.full_name = full_name
+        self.type = type
+        self.description = description
+        self.html_url = html_url
+        self.api_url = api_url
+        self.created_by = created_by
+        self.deleted_by = deleted_by
+        self.last_pusher = last_pusher
+        self.head_sha = head_sha
+        self.previous_head_sha = previous_head_sha
+        self.last_update = last_update
+        if commits == None:
+            self.commits = []
+        else:
+            self.commits = commits
+
     def __repr__(self):
-        return '<Repository {}> name: {}, last_update: {}, last_pusher: {}, head_sha: {}, previous_head_sha: {}'.format(
+        return '<Repository {}> is_deleted: {}, full_name: {}, short_name: {}, last_update: {}, last_pusher: {}, head_sha: {}, previous_head_sha: {}'.format(
         self.external_id,
-        self.name,
+        self.is_deleted,
+        self.full_name,
+        self.short_name,
         self.last_update,
         self.last_pusher,
         self.head_sha,
@@ -136,7 +181,12 @@ class Repository(Base):
         return {
             'id': self.id,
             'external_id': self.external_id,
-            'name': self.name,
+            'short_name': self.short_name,
+            'full_name': self.full_name,
+            'type': self.type,
+            'is_deleted': self.is_deleted,
+            'html_url': self.html_url,
+            'api_url': self.api_url,
             'last_update': self.last_update.isoformat(),
             'last_pusher': self.last_pusher,
             'head_sha': self.head_sha,

@@ -19,7 +19,7 @@ run-metrics-writer:
 	source env/bin/activate; cd metrics_writer; python metrics_writer/run.py
 
 run-publisher:
-	source env/bin/activate; cd publisher; FLASK_APP="publisher.app" FLASK_DEBUG=true -p 5000 flask run
+	source env/bin/activate; cd publisher; FLASK_APP="publisher.app" FLASK_DEBUG=true flask run -p 5000
 
 run-event-writer:
 	source env/bin/activate; cd event_writer; CLEAN_DB="true" python event_writer/run.py

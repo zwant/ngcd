@@ -5,7 +5,10 @@ HEADER_CLASS_MAP = {
     'PipelineFinished': events_pb2.PipelineFinished,
     'PipelineStageStarted': events_pb2.PipelineStageStarted,
     'PipelineStageFinished': events_pb2.PipelineStageFinished,
-    'CodePushed': events_pb2.CodePushed
+    'CodePushed': events_pb2.CodePushed,
+    'ArtifactPublished': events_pb2.ArtifactPublished,
+    'RepositoryAdded': events_pb2.RepositoryAdded,
+    'RepositoryRemoved': events_pb2.RepositoryRemoved
 }
 
 def handle_headers(headers_map):

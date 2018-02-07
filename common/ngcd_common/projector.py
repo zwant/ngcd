@@ -10,12 +10,15 @@ class Projector(object):
     def __init__(self, db_session):
         self.db_session = db_session
 
-    def process_events(self, until=10000):
+    def process_events(self, until=10000, only=None):
         query = Event.query \
                     .filter(Event.id > self.last_processed_event_id) \
-                    .order_by(Event.event_origin_time.asc())
+                    .order_by(Event.event_origin_time.asc(), Event.id.asc())
+
         i = 0
         for event in query.all():
+            if only and event.id not in only:
+                continue
             if i > until:
                 return
             print('Processing event {} of type {}'.format(event.id, event.type))

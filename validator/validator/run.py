@@ -8,6 +8,7 @@ from ngcd_common import events_pb2
 QueueConfig = namedtuple('QueueConfig', ['exchange', 'name', 'routing_key', 'message_clz'])
 
 ALL_QUEUE_CONFIGS = [
+     # Pipelines and Stages
     (QueueConfig('external', 'external.pipeline.started', 'pipeline.started', events_pb2.PipelineStarted),
      QueueConfig('internal', 'internal.pipeline.started', 'pipeline.started', events_pb2.PipelineStarted)),
 
@@ -20,8 +21,20 @@ ALL_QUEUE_CONFIGS = [
     (QueueConfig('external', 'external.pipeline.stage.finished', 'pipeline.stage.finished', events_pb2.PipelineStageFinished),
      QueueConfig('internal', 'internal.pipeline.stage.finished', 'pipeline.stage.finished', events_pb2.PipelineStageFinished)),
 
+     # SCM Repos
     (QueueConfig('external', 'external.scm.repo.push', 'scm.repo.push', events_pb2.CodePushed),
      QueueConfig('internal', 'internal.scm.repo.push', 'scm.repo.push', events_pb2.CodePushed)),
+
+    (QueueConfig('external', 'external.scm.repo.create', 'scm.repo.create', events_pb2.RepositoryAdded),
+     QueueConfig('internal', 'internal.scm.repo.create', 'scm.repo.create', events_pb2.RepositoryAdded)),
+
+    (QueueConfig('external', 'external.scm.repo.remove', 'scm.repo.remove', events_pb2.RepositoryRemoved),
+     QueueConfig('internal', 'internal.scm.repo.remove', 'scm.repo.remove', events_pb2.RepositoryRemoved)),
+
+     # Artifacts
+    (QueueConfig('external', 'external.artifact.publish', 'artifact.publish', events_pb2.ArtifactPublished),
+     QueueConfig('internal', 'internal.artifact.publish', 'artifact.publish', events_pb2.ArtifactPublished)),
+
 ]
 def main():
     rabbitmq_host = os.environ['RABBITMQ_HOST']

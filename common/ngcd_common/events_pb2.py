@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='events.proto',
   package='events',
   syntax='proto3',
-  serialized_pb=_b('\n\x0c\x65vents.proto\x12\x06\x65vents\x1a\x1fgoogle/protobuf/timestamp.proto\"N\n\x0fPipelineStarted\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x84\x01\n\x10PipelineFinished\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x03 \x01(\x05\x12\x1e\n\x06result\x18\x04 \x01(\x0e\x32\x0e.events.Result\"j\n\x14PipelineStageStarted\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xa0\x01\n\x15PipelineStageFinished\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x04 \x01(\x05\x12\x1e\n\x06result\x18\x05 \x01(\x0e\x32\x0e.events.Result\"6\n\x07ScmUser\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"y\n\tScmCommit\x12\x0b\n\x03sha\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1f\n\x06\x61uthor\x18\x03 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xca\x01\n\nCodePushed\x12\x17\n\x0frepository_name\x18\x01 \x01(\t\x12\x14\n\x0cnew_head_sha\x18\x02 \x01(\t\x12\x19\n\x11previous_head_sha\x18\x03 \x01(\t\x12\x1f\n\x06pusher\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12\"\n\x07\x63ommits\x18\x05 \x03(\x0b\x32\x11.events.ScmCommit\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*/\n\x06Result\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0b\n\x07\x41\x42ORTED\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n\x0c\x65vents.proto\x12\x06\x65vents\x1a\x1fgoogle/protobuf/timestamp.proto\"N\n\x0fPipelineStarted\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x84\x01\n\x10PipelineFinished\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x03 \x01(\x05\x12\x1e\n\x06result\x18\x04 \x01(\x0e\x32\x0e.events.Result\"j\n\x14PipelineStageStarted\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xa0\x01\n\x15PipelineStageFinished\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x04 \x01(\x05\x12\x1e\n\x06result\x18\x05 \x01(\x0e\x32\x0e.events.Result\"6\n\x07ScmUser\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"y\n\tScmCommit\x12\x0b\n\x03sha\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1f\n\x06\x61uthor\x18\x03 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\\\n\x0eRepoIdentifier\x12\x12\n\nshort_name\x18\x01 \x01(\t\x12\x11\n\tfull_name\x18\x02 \x01(\t\x12#\n\trepo_type\x18\x05 \x01(\x0e\x32\x10.events.RepoType\"\xdd\x01\n\nCodePushed\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x14\n\x0cnew_head_sha\x18\x02 \x01(\t\x12\x19\n\x11previous_head_sha\x18\x03 \x01(\t\x12\x1f\n\x06pusher\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12\"\n\x07\x63ommits\x18\x05 \x03(\x0b\x32\x11.events.ScmCommit\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xcb\x01\n\x0fRepositoryAdded\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x10\n\x08html_url\x18\x03 \x01(\t\x12\x0f\n\x07\x61pi_url\x18\x04 \x01(\t\x12%\n\x0cperformed_by\x18\x05 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x95\x01\n\x11RepositoryRemoved\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12%\n\x0cperformed_by\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x81\x01\n\x11\x41rtifactPublished\x12\x16\n\x0e\x63omponent_name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x14\n\x0c\x64ownload_url\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*/\n\x06Result\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0b\n\x07\x41\x42ORTED\x10\x02*p\n\x08RepoType\x12\x11\n\rPUBLIC_GITHUB\x10\x00\x12\x15\n\x11GITHUB_ENTERPRISE\x10\x01\x12\n\n\x06GITLAB\x10\x02\x12\x14\n\x10PUBLIC_BITBUCKET\x10\x03\x12\x18\n\x14\x42ITBUCKET_ENTERPRISE\x10\x04\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -46,15 +46,55 @@ _RESULT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=927,
-  serialized_end=974,
+  serialized_start=1530,
+  serialized_end=1577,
 )
 _sym_db.RegisterEnumDescriptor(_RESULT)
 
 Result = enum_type_wrapper.EnumTypeWrapper(_RESULT)
+_REPOTYPE = _descriptor.EnumDescriptor(
+  name='RepoType',
+  full_name='events.RepoType',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='PUBLIC_GITHUB', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='GITHUB_ENTERPRISE', index=1, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='GITLAB', index=2, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='PUBLIC_BITBUCKET', index=3, number=3,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BITBUCKET_ENTERPRISE', index=4, number=4,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=1579,
+  serialized_end=1691,
+)
+_sym_db.RegisterEnumDescriptor(_REPOTYPE)
+
+RepoType = enum_type_wrapper.EnumTypeWrapper(_REPOTYPE)
 SUCCESS = 0
 FAILURE = 1
 ABORTED = 2
+PUBLIC_GITHUB = 0
+GITHUB_ENTERPRISE = 1
+GITLAB = 2
+PUBLIC_BITBUCKET = 3
+BITBUCKET_ENTERPRISE = 4
 
 
 
@@ -349,6 +389,51 @@ _SCMCOMMIT = _descriptor.Descriptor(
 )
 
 
+_REPOIDENTIFIER = _descriptor.Descriptor(
+  name='RepoIdentifier',
+  full_name='events.RepoIdentifier',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='short_name', full_name='events.RepoIdentifier.short_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='full_name', full_name='events.RepoIdentifier.full_name', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='repo_type', full_name='events.RepoIdentifier.repo_type', index=2,
+      number=5, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=722,
+  serialized_end=814,
+)
+
+
 _CODEPUSHED = _descriptor.Descriptor(
   name='CodePushed',
   full_name='events.CodePushed',
@@ -357,9 +442,9 @@ _CODEPUSHED = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='repository_name', full_name='events.CodePushed.repository_name', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      name='identifier', full_name='events.CodePushed.identifier', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -410,8 +495,171 @@ _CODEPUSHED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=723,
-  serialized_end=925,
+  serialized_start=817,
+  serialized_end=1038,
+)
+
+
+_REPOSITORYADDED = _descriptor.Descriptor(
+  name='RepositoryAdded',
+  full_name='events.RepositoryAdded',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='events.RepositoryAdded.identifier', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='description', full_name='events.RepositoryAdded.description', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='html_url', full_name='events.RepositoryAdded.html_url', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='api_url', full_name='events.RepositoryAdded.api_url', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='performed_by', full_name='events.RepositoryAdded.performed_by', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='events.RepositoryAdded.timestamp', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1041,
+  serialized_end=1244,
+)
+
+
+_REPOSITORYREMOVED = _descriptor.Descriptor(
+  name='RepositoryRemoved',
+  full_name='events.RepositoryRemoved',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='events.RepositoryRemoved.identifier', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='performed_by', full_name='events.RepositoryRemoved.performed_by', index=1,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='events.RepositoryRemoved.timestamp', index=2,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1247,
+  serialized_end=1396,
+)
+
+
+_ARTIFACTPUBLISHED = _descriptor.Descriptor(
+  name='ArtifactPublished',
+  full_name='events.ArtifactPublished',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='component_name', full_name='events.ArtifactPublished.component_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='version', full_name='events.ArtifactPublished.version', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='download_url', full_name='events.ArtifactPublished.download_url', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='timestamp', full_name='events.ArtifactPublished.timestamp', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1399,
+  serialized_end=1528,
 )
 
 _PIPELINESTARTED.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
@@ -422,17 +670,31 @@ _PIPELINESTAGEFINISHED.fields_by_name['timestamp'].message_type = google_dot_pro
 _PIPELINESTAGEFINISHED.fields_by_name['result'].enum_type = _RESULT
 _SCMCOMMIT.fields_by_name['author'].message_type = _SCMUSER
 _SCMCOMMIT.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_REPOIDENTIFIER.fields_by_name['repo_type'].enum_type = _REPOTYPE
+_CODEPUSHED.fields_by_name['identifier'].message_type = _REPOIDENTIFIER
 _CODEPUSHED.fields_by_name['pusher'].message_type = _SCMUSER
 _CODEPUSHED.fields_by_name['commits'].message_type = _SCMCOMMIT
 _CODEPUSHED.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_REPOSITORYADDED.fields_by_name['identifier'].message_type = _REPOIDENTIFIER
+_REPOSITORYADDED.fields_by_name['performed_by'].message_type = _SCMUSER
+_REPOSITORYADDED.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_REPOSITORYREMOVED.fields_by_name['identifier'].message_type = _REPOIDENTIFIER
+_REPOSITORYREMOVED.fields_by_name['performed_by'].message_type = _SCMUSER
+_REPOSITORYREMOVED.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_ARTIFACTPUBLISHED.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 DESCRIPTOR.message_types_by_name['PipelineStarted'] = _PIPELINESTARTED
 DESCRIPTOR.message_types_by_name['PipelineFinished'] = _PIPELINEFINISHED
 DESCRIPTOR.message_types_by_name['PipelineStageStarted'] = _PIPELINESTAGESTARTED
 DESCRIPTOR.message_types_by_name['PipelineStageFinished'] = _PIPELINESTAGEFINISHED
 DESCRIPTOR.message_types_by_name['ScmUser'] = _SCMUSER
 DESCRIPTOR.message_types_by_name['ScmCommit'] = _SCMCOMMIT
+DESCRIPTOR.message_types_by_name['RepoIdentifier'] = _REPOIDENTIFIER
 DESCRIPTOR.message_types_by_name['CodePushed'] = _CODEPUSHED
+DESCRIPTOR.message_types_by_name['RepositoryAdded'] = _REPOSITORYADDED
+DESCRIPTOR.message_types_by_name['RepositoryRemoved'] = _REPOSITORYREMOVED
+DESCRIPTOR.message_types_by_name['ArtifactPublished'] = _ARTIFACTPUBLISHED
 DESCRIPTOR.enum_types_by_name['Result'] = _RESULT
+DESCRIPTOR.enum_types_by_name['RepoType'] = _REPOTYPE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 PipelineStarted = _reflection.GeneratedProtocolMessageType('PipelineStarted', (_message.Message,), dict(
@@ -477,12 +739,40 @@ ScmCommit = _reflection.GeneratedProtocolMessageType('ScmCommit', (_message.Mess
   ))
 _sym_db.RegisterMessage(ScmCommit)
 
+RepoIdentifier = _reflection.GeneratedProtocolMessageType('RepoIdentifier', (_message.Message,), dict(
+  DESCRIPTOR = _REPOIDENTIFIER,
+  __module__ = 'events_pb2'
+  # @@protoc_insertion_point(class_scope:events.RepoIdentifier)
+  ))
+_sym_db.RegisterMessage(RepoIdentifier)
+
 CodePushed = _reflection.GeneratedProtocolMessageType('CodePushed', (_message.Message,), dict(
   DESCRIPTOR = _CODEPUSHED,
   __module__ = 'events_pb2'
   # @@protoc_insertion_point(class_scope:events.CodePushed)
   ))
 _sym_db.RegisterMessage(CodePushed)
+
+RepositoryAdded = _reflection.GeneratedProtocolMessageType('RepositoryAdded', (_message.Message,), dict(
+  DESCRIPTOR = _REPOSITORYADDED,
+  __module__ = 'events_pb2'
+  # @@protoc_insertion_point(class_scope:events.RepositoryAdded)
+  ))
+_sym_db.RegisterMessage(RepositoryAdded)
+
+RepositoryRemoved = _reflection.GeneratedProtocolMessageType('RepositoryRemoved', (_message.Message,), dict(
+  DESCRIPTOR = _REPOSITORYREMOVED,
+  __module__ = 'events_pb2'
+  # @@protoc_insertion_point(class_scope:events.RepositoryRemoved)
+  ))
+_sym_db.RegisterMessage(RepositoryRemoved)
+
+ArtifactPublished = _reflection.GeneratedProtocolMessageType('ArtifactPublished', (_message.Message,), dict(
+  DESCRIPTOR = _ARTIFACTPUBLISHED,
+  __module__ = 'events_pb2'
+  # @@protoc_insertion_point(class_scope:events.ArtifactPublished)
+  ))
+_sym_db.RegisterMessage(ArtifactPublished)
 
 
 # @@protoc_insertion_point(module_scope)

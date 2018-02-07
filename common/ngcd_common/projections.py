@@ -39,23 +39,33 @@ class Projection(object):
 class RepositoryProjection(Projection):
     @classmethod
     def get_interesting_events(cls):
-        return ['CodePushed']
+        return ['CodePushed', 'RepositoryAdded', 'RepositoryRemoved']
 
     @classmethod
     def get_external_id_from_body(cls, body):
-        return body['repositoryName']
+        return body['identifier']['fullName']
 
     @classmethod
     def apply_event_to_model(cls, model, event):
+        model.short_name = event.body['identifier']['shortName']
+        model.full_name = event.body['identifier']['fullName']
+        model.type = event.body['identifier']['repoType']
         if event.type == 'CodePushed':
-            model.name = event.body['repositoryName']
             model.head_sha = event.body['newHeadSha']
             model.previous_head_sha = event.body['previousHeadSha']
             model.last_pusher = event.body['pusher']
             if not model.commits:
                 model.commits = []
             model.commits.append(event.body['commits'])
-            model.last_update = event.body['timestamp']
+        elif event.type == 'RepositoryAdded':
+            model.description = event.body['description']
+            model.html_url = event.body['htmlUrl']
+            model.api_url = event.body['apiUrl']
+            model.created_by = event.body['performedBy']
+        elif event.type == 'RepositoryRemoved':
+            model.is_deleted = True
+            model.deleted_by = event.body['performedBy']
+        model.last_update = event.body['timestamp']
 
     @classmethod
     def handle_event(cls, session, event):

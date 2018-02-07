@@ -1,12 +1,23 @@
 from ngcd_common import model
 from ngcd_common.projector import Projector
 from ngcd_common.projections import PipelineProjection, PipelineStageProjection
-from flask import Blueprint, jsonify, abort
+from flask import Blueprint, jsonify, abort, request
 from event_api.factory import db
 
 # create our blueprint :)
 bp = Blueprint('events', __name__)
 
+@bp.route("/replay/", methods=['POST'])
+def replay():
+    payload = request.get_json(force=True)
+    if 'events' in payload:
+        events_to_replay = payload['events']
+    else:
+        events_to_replay = None
+    projector = Projector(db.session)
+    projector.process_events(only=events_to_replay)
+
+    return "Done!"
 
 @bp.route("/pipeline/<external_id>/")
 def pipeline(external_id=None):
@@ -52,7 +63,7 @@ def repository(repo_name=None):
     projector = Projector(db.session)
     projector.process_events()
     repository = model.Repository.query \
-                .filter(model.Repository.name == repo_name) \
+                .filter(model.Repository.short_name == repo_name) \
                 .first()
     if not repository:
         abort(404)
