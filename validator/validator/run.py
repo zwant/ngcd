@@ -1,74 +1,87 @@
 #!/usr/bin/env python
-import pika
-import sys
-import os
-from collections import namedtuple
-from ngcd_common import events_pb2
 import logging
+import os
+import sys
+from ngcd_common import events_pb2
+from kombu import Producer, Queue, Exchange, Connection
+from kombu.mixins import ConsumerProducerMixin
 
 logger = logging.getLogger('validator')
 
-QueueConfig = namedtuple('QueueConfig', ['exchange', 'name', 'routing_key', 'message_clz'])
+external_exchange = Exchange('external', 'topic', durable=True)
+internal_exchange = Exchange('internal', 'topic', durable=True)
 
 ALL_QUEUE_CONFIGS = [
      # Pipelines and Stages
-    (QueueConfig('external', 'external.pipeline.started', 'pipeline.started', events_pb2.PipelineStarted),
-     QueueConfig('internal', 'internal.pipeline.started', 'pipeline.started', events_pb2.PipelineStarted)),
+    ((Queue('external.pipeline.started', exchange=external_exchange, routing_key='pipeline.started'), events_pb2.PipelineStarted),
+     (Queue('internal.pipeline.started', exchange=internal_exchange, routing_key='pipeline.started'), events_pb2.PipelineStarted)),
+    ((Queue('external.pipeline.finished', exchange=external_exchange, routing_key='pipeline.finished'), events_pb2.PipelineFinished),
+     (Queue('internal.pipeline.finished', exchange=internal_exchange, routing_key='pipeline.finished'), events_pb2.PipelineFinished)),
+    ((Queue('external.pipeline.stage.started', exchange=external_exchange, routing_key='pipeline.stage.started'), events_pb2.PipelineStageStarted),
+     (Queue('internal.pipeline.stage.started', exchange=internal_exchange, routing_key='pipeline.stage.started'), events_pb2.PipelineStageStarted)),
+    ((Queue('external.pipeline.stage.finished', exchange=external_exchange, routing_key='pipeline.stage.finished'), events_pb2.PipelineStageFinished),
+     (Queue('internal.pipeline.stage.finished', exchange=internal_exchange, routing_key='pipeline.stage.finished'), events_pb2.PipelineStageFinished)),
 
-    (QueueConfig('external', 'external.pipeline.finished', 'pipeline.finished', events_pb2.PipelineFinished),
-     QueueConfig('internal', 'internal.pipeline.finished', 'pipeline.finished', events_pb2.PipelineFinished)),
-
-    (QueueConfig('external', 'external.pipeline.stage.started', 'pipeline.stage.started', events_pb2.PipelineStageStarted),
-     QueueConfig('internal', 'internal.pipeline.stage.started', 'pipeline.stage.started', events_pb2.PipelineStageStarted)),
-
-    (QueueConfig('external', 'external.pipeline.stage.finished', 'pipeline.stage.finished', events_pb2.PipelineStageFinished),
-     QueueConfig('internal', 'internal.pipeline.stage.finished', 'pipeline.stage.finished', events_pb2.PipelineStageFinished)),
-
-     # SCM Repos
-    (QueueConfig('external', 'external.scm.repo.push', 'scm.repo.push', events_pb2.CodePushed),
-     QueueConfig('internal', 'internal.scm.repo.push', 'scm.repo.push', events_pb2.CodePushed)),
-
-    (QueueConfig('external', 'external.scm.repo.create', 'scm.repo.create', events_pb2.RepositoryAdded),
-     QueueConfig('internal', 'internal.scm.repo.create', 'scm.repo.create', events_pb2.RepositoryAdded)),
-
-    (QueueConfig('external', 'external.scm.repo.remove', 'scm.repo.remove', events_pb2.RepositoryRemoved),
-     QueueConfig('internal', 'internal.scm.repo.remove', 'scm.repo.remove', events_pb2.RepositoryRemoved)),
+    # SCM Repos
+    ((Queue('external.scm.repo.push', exchange=external_exchange, routing_key='scm.repo.push'), events_pb2.CodePushed),
+     (Queue('internal.scm.repo.push', exchange=internal_exchange, routing_key='scm.repo.push'), events_pb2.CodePushed)),
+    ((Queue('external.scm.repo.create', exchange=external_exchange, routing_key='scm.repo.create'), events_pb2.RepositoryAdded),
+     (Queue('internal.scm.repo.create', exchange=internal_exchange, routing_key='scm.repo.create'), events_pb2.RepositoryAdded)),
+    ((Queue('external.scm.repo.remove', exchange=external_exchange, routing_key='scm.repo.remove'), events_pb2.RepositoryRemoved),
+     (Queue('internal.scm.repo.remove', exchange=internal_exchange, routing_key='scm.repo.remove'), events_pb2.RepositoryRemoved)),
 
      # Artifacts
-    (QueueConfig('external', 'external.artifact.publish', 'artifact.publish', events_pb2.ArtifactPublished),
-     QueueConfig('internal', 'internal.artifact.publish', 'artifact.publish', events_pb2.ArtifactPublished)),
+     ((Queue('external.scm.artifact.publish', exchange=external_exchange, routing_key='artifact.publish'), events_pb2.ArtifactPublished),
+      (Queue('internal.scm.artifact.publish', exchange=internal_exchange, routing_key='artifact.publish'), events_pb2.ArtifactPublished)),
 
 ]
+
+class Worker(ConsumerProducerMixin):
+
+    def __init__(self, connection):
+        self.connection = connection
+
+    def get_consumers(self, Consumer, channel):
+        logger.info('Setting up [%s] converters', len(ALL_QUEUE_CONFIGS))
+        return [Consumer(src_queue,
+                         auto_declare=True,
+                         accept=['application/vnd.google.protobuf'],
+                         on_message=self.create_callback(src_queue, src_clz, dst_queue, dst_clz)) for ((src_queue, src_clz), (dst_queue, dst_clz)) in ALL_QUEUE_CONFIGS]
+
+    def build_headers(self, message_clz):
+        return {'proto-message-type': str(message_clz.__name__)}
+
+    def validate_and_convert_message(self, data, expected_clz, output_clz):
+        message = expected_clz()
+        message.ParseFromString(data)
+
+        return message.SerializeToString()
+
+    def create_callback(self, src_queue, src_clz, dst_queue, dst_clz):
+        def callback(message):
+            headers = self.build_headers(dst_clz)
+            outgoing_body = self.validate_and_convert_message(message.body, src_clz, dst_clz)
+            self.producer.publish(outgoing_body,
+                exchange=dst_queue.exchange,
+                routing_key=dst_queue.routing_key,
+                content_type='application/vnd.google.protobuf',
+                content_encoding='binary',
+                headers=headers,
+                delivery_mode=2,
+                declare=[dst_queue]
+            )
+            logger.debug('Forwarded 1 message from [%s] to [%s]', src_queue.name, dst_queue.name)
+            message.ack()
+        return callback
 
 def main():
     config = get_config()
     setup_logging(config)
 
-    connection_established = False
-    while not connection_established:
-        try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))
-            connection_established = True
-        except pika.exceptions.ConnectionClosed:
-            logger.error('Unable to connect to RabbitMQ host [%s]. Will retry in a second!', config.RABBITMQ_HOST)
-            import time
-            time.sleep(1)
+    with Connection('amqp://guest:guest@{}//'.format(config.RABBITMQ_HOST)) as conn:
+        logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
+        Worker(conn).run()
 
-    channel = connection.channel()
-
-    channel.exchange_declare(exchange='external',
-                             durable=True,
-                             exchange_type='topic')
-    channel.exchange_declare(exchange='internal',
-                             durable=True,
-                             exchange_type='topic')
-
-    logger.info('Setting up [%s] converters', len(ALL_QUEUE_CONFIGS))
-    for src_config, dst_config in ALL_QUEUE_CONFIGS:
-        setup_converter(channel, src_config, dst_config)
-    logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
-
-    channel.start_consuming()
 
 def get_config():
     import os
@@ -79,7 +92,7 @@ def get_config():
 def setup_logging(config):
     import logging.config
     import yaml
-    
+
     path = config.LOGCONFIG
     if os.path.exists(path):
         with open(path, 'rt') as f:
@@ -91,41 +104,6 @@ def setup_logging(config):
         raise Exception('Failed to read log config from {}'.format(path))
     logging.config.dictConfig(config)
 
-def get_headers(queue_config):
-    return {'proto-message-type': str(queue_config.message_clz.__name__)}
-
-def create_callback(src_queue_config, dst_queue_config):
-    def callback(ch, method, properties, body):
-        headers = get_headers(dst_queue_config)
-        ch.basic_publish(exchange=dst_queue_config.exchange,
-                         routing_key=dst_queue_config.routing_key,
-                         body=validate_and_convert_message(body, src_queue_config.message_clz, dst_queue_config.message_clz),
-                         properties=pika.BasicProperties(
-                            delivery_mode = 2, # make message persistent
-                            headers=headers
-                         ))
-        ch.basic_ack(delivery_tag = method.delivery_tag)
-        logger.debug('Forwarded 1 message from [%s] to [%s]', src_queue_config.name, dst_queue_config.name)
-    return callback
-
-def create_queue_from_config(channel, queue_config):
-    queue_result = channel.queue_declare(queue_config.name, durable=True)
-    channel.queue_bind(exchange=queue_config.exchange,
-                       queue=queue_result.method.queue,
-                       routing_key=queue_config.routing_key)
-
-    return queue_result.method.queue
-
-def setup_converter(channel, src_queue_config, dst_queue_config):
-    created_queue_name = create_queue_from_config(channel, src_queue_config)
-    channel.basic_consume(create_callback(src_queue_config, dst_queue_config),
-                          queue=created_queue_name)
-
-def validate_and_convert_message(data, expected_clz, output_clz):
-    message = expected_clz()
-    message.ParseFromString(data)
-
-    return message.SerializeToString()
 
 if __name__ == '__main__':
     main()

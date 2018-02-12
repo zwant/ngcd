@@ -5,7 +5,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'pika',
+        'kombu',
         'sqlalchemy-utils'
     ],
     setup_requires=[

@@ -4,10 +4,59 @@ import sys
 from sqlalchemy_utils.functions import database_exists, create_database
 from collections import namedtuple
 from ngcd_common import queue_configs, model
+from kombu.mixins import ConsumerMixin
+from kombu import Queue, Exchange, Connection
 import logging
 import os
 
 logger = logging.getLogger('event_writer')
+
+internal_exchange = Exchange('internal', 'topic', durable=True)
+QUEUES = [Queue('internal.pipeline.all', exchange=internal_exchange, routing_key='pipeline.#'),
+          Queue('internal.scm.all', exchange=internal_exchange, routing_key='scm.#'),
+          Queue('internal.artifact.all', exchange=internal_exchange, routing_key='artifact.#')]
+
+class Worker(ConsumerMixin):
+
+    def __init__(self, connection, db_session):
+        self.connection = connection
+        self.db_session = db_session
+
+    def get_consumers(self, Consumer, channel):
+        logger.info('Setting up [%s] listeners', len(QUEUES))
+
+        return [Consumer(QUEUES,
+                         auto_declare=True,
+                         accept=['application/vnd.google.protobuf'],
+                         on_message=self.on_message)]
+
+    def build_headers(self, message_clz):
+        return {'proto-message-type': str(message_clz.__name__)}
+
+    def parse_message(self, data, expected_clz):
+        message = expected_clz()
+        message.ParseFromString(data)
+
+        return message
+
+    def validate_and_convert_message(self, data, expected_clz, output_clz):
+        message = expected_clz()
+        message.ParseFromString(data)
+
+        return message.SerializeToString()
+
+    def on_message(self, message):
+        expected_clz = queue_configs.handle_headers(message.properties['application_headers'])
+        if not expected_clz:
+            logger.warn('Dont know how to handle message with headers [%s], throwing it away', message.properties['application_headers'])
+            message.ack()
+            return
+
+        parsed_data = self.parse_message(message.body, expected_clz)
+        logger.debug('Received 1 message with routing key [%s], of type [%s]', message.delivery_info['routing_key'], expected_clz.__name__)
+        model.Event.write_event(self.db_session, parsed_data)
+        message.ack()
+
 
 def main():
     from sqlalchemy import create_engine
@@ -25,67 +74,17 @@ def main():
                                              bind=db_engine))
 
     model.Base.query = db_session.query_property()
-
-    connection_established = False
-
-    while not connection_established:
-        try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host=config.RABBITMQ_HOST))
-            connection_established = True
-        except pika.exceptions.ConnectionClosed:
-            logger.error('Unable to connect to RabbitMQ host [%s]. Will retry in a second!', config.RABBITMQ_HOST)
-            import time
-            time.sleep(1)
-
-    channel = connection.channel()
     if config.CLEAN_DB == True:
         logger.info('Cleaning DB')
         model.Base.metadata.drop_all(db_engine)
     else:
         logger.info('Not cleaning DB')
+
     model.Base.metadata.create_all(db_engine)
 
-    logger.info('Setting up queue workers')
-    setup_listener(db_session, channel, 'internal', 'internal.pipeline.all', 'pipeline.#')
-    setup_listener(db_session, channel, 'internal', 'internal.scm.all', 'scm.#')
-    setup_listener(db_session, channel, 'internal', 'internal.artifact.all', 'artifact.#')
-    logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
-
-    channel.start_consuming()
-
-def make_callback(db_session):
-    def callback(ch, method, properties, body):
-        expected_clz = queue_configs.handle_headers(properties.headers)
-        if not expected_clz:
-            logger.warn('Dont know how to handle message with headers [%s], throwing it away', properties.headers)
-            ch.basic_ack(delivery_tag = method.delivery_tag)
-            return
-
-        parsed_data = parse_message(body, expected_clz)
-        logger.debug('Received 1 message with routing key [%s], of type [%s]', method.routing_key, expected_clz.__name__)
-        model.Event.write_event(db_session, parsed_data)
-        ch.basic_ack(delivery_tag = method.delivery_tag)
-    return callback
-
-def create_queue(channel, exchange, queue_name, routing_key):
-    queue_result = channel.queue_declare(queue_name, durable=True)
-    channel.queue_bind(exchange=exchange,
-                       queue=queue_result.method.queue,
-                       routing_key=routing_key)
-
-    return queue_result.method.queue
-
-def setup_listener(db_session, channel, exchange, queue_name, routing_key):
-    logger.info('Setting up listener on exchange [%s], queue [%s] with routing key [%s]', exchange, queue_name, routing_key)
-    created_queue_name = create_queue(channel, exchange, queue_name, routing_key)
-    channel.basic_consume(make_callback(db_session),
-                          queue=created_queue_name)
-
-def parse_message(data, expected_clz):
-    message = expected_clz()
-    message.ParseFromString(data)
-
-    return message
+    with Connection('amqp://guest:guest@{}//'.format(config.RABBITMQ_HOST)) as conn:
+        logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
+        Worker(conn, db_session).run()
 
 def get_config():
     import os

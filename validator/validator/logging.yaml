@@ -11,7 +11,7 @@ handlers:
         formatter: simple
         stream: ext://sys.stdout
 loggers:
-    pika:
+    amqp:
         level: WARN
         propagate: true
 root:

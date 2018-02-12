@@ -1,87 +1,56 @@
-from validator import run
+from validator.run import Worker, internal_exchange, external_exchange
 from ngcd_common import events_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
-import pika
+from kombu import Queue, Consumer, Producer
+from time import sleep
+
+def timestamp_from_json_string(json_string):
+    ts = Timestamp()
+    ts.FromJsonString(json_string)
+
+    return ts
 
 class TestConverter(object):
-    def setup_channel_mock(self, mocker, expected_queue_name):
-        rabbitmq_channel_mock = mocker.MagicMock()
-        rabbitmq_channel_mock.queue_declare.return_value.method.queue = expected_queue_name
+    def test_forwards_pipeline_started(self, amqp_connection):
+        expected_input_queue = Queue('external.pipeline.started',
+                                     exchange=external_exchange, routing_key='pipeline.started')
+        expected_output_queue = Queue('internal.pipeline.started',
+                                      exchange=internal_exchange, routing_key='pipeline.started')
+        received_msgs = []
+        def on_message(self, message):
+            received_msgs.append(message)
 
-        return rabbitmq_channel_mock
+        worker = Worker(amqp_connection)
+        with amqp_connection.channel() as channel:
+            producer = Producer(channel)
+            ts = timestamp_from_json_string("2012-04-23T18:25:43.511Z")
+            event = events_pb2.PipelineStarted(uuid="abcdef",
+                                               timestamp=ts)
+            result = producer.publish(event.SerializeToString(),
+                exchange=external_exchange,
+                routing_key="pipeline.started",
+                content_type='application/vnd.google.protobuf',
+                content_encoding='binary',
+                headers={"proto-message-type": 'PipelineStarted'},
+                delivery_mode=2,
+                declare=[external_exchange, expected_input_queue]
+            )
 
-    def test_create_queue_from_config(self, mocker):
-        expected_queue_name = 'external.pipeline.started'
-        queue_config = run.QueueConfig('external',
-                                       expected_queue_name,
-                                       'pipeline.started',
-                                       events_pb2.PipelineStarted)
-        rabbitmq_channel_mock = self.setup_channel_mock(mocker, expected_queue_name)
-        returned = run.create_queue_from_config(rabbitmq_channel_mock, queue_config)
+        [_ for _ in worker.consume(limit=1)]
+        with Consumer(amqp_connection, expected_output_queue, callbacks=[on_message]):
+            amqp_connection.drain_events(timeout=1)
 
-        rabbitmq_channel_mock.queue_declare.assert_called_once_with(expected_queue_name, durable=True)
-        rabbitmq_channel_mock.queue_bind.assert_called_once_with(exchange='external',
-                           queue=expected_queue_name,
-                           routing_key='pipeline.started')
-        assert returned == "external.pipeline.started"
+        assert len(received_msgs) == 1
+        msg = received_msgs[0]
+        assert msg.content_type == 'application/vnd.google.protobuf'
+        assert msg.headers == {"proto-message-type": 'PipelineStarted'}
+        assert msg.delivery_info['routing_key'] == 'pipeline.started'
 
-    def test_setup_converter(self, mocker):
-        expected_queue_name = 'external.pipeline.started'
-        src_queue_config = run.QueueConfig('external',
-                                       'external.pipeline.started',
-                                       'pipeline.started',
-                                       events_pb2.PipelineStarted)
-        dst_queue_config = run.QueueConfig('internal',
-                                       'internal.pipeline.started',
-                                       'pipeline.started',
-                                       events_pb2.PipelineStarted)
-        rabbitmq_channel_mock = self.setup_channel_mock(mocker, expected_queue_name)
-        mocker.spy(run, 'create_callback')
+        data = events_pb2.PipelineStarted()
+        data.ParseFromString(msg.body)
+        assert data.uuid == 'abcdef'
 
-        run.setup_converter(rabbitmq_channel_mock, src_queue_config, dst_queue_config)
-
-        rabbitmq_channel_mock.queue_declare.assert_called_once_with(expected_queue_name, durable=True)
-        rabbitmq_channel_mock.queue_bind.assert_called_once_with(exchange='external',
-                           queue=expected_queue_name,
-                           routing_key='pipeline.started')
-        rabbitmq_channel_mock.basic_consume.assert_called_once_with(mocker.ANY, queue=expected_queue_name)
-
-        run.create_callback.assert_called_once_with(src_queue_config, dst_queue_config)
-
-    def test_create_callback(self, mocker):
-        src_queue_config = run.QueueConfig('external',
-                                       'external.pipeline.started',
-                                       'pipeline.started',
-                                       events_pb2.PipelineStarted)
-        dst_queue_config = run.QueueConfig('internal',
-                                       'internal.pipeline.started',
-                                       'route_key.pipeline.started',
-                                       events_pb2.PipelineStarted)
-
-        rabbitmq_channel_mock = mocker.MagicMock()
-        ts = Timestamp()
-        ts.FromJsonString("2017-02-03T12:02:43.511Z")
-        msg_body = events_pb2.PipelineStarted(uuid="12345",
-                                              timestamp=ts).SerializeToString()
-        callback_method = run.create_callback(src_queue_config, dst_queue_config)
-        callback_method(rabbitmq_channel_mock, mocker.MagicMock(), mocker.MagicMock(), msg_body)
-        rabbitmq_channel_mock.basic_ack.assert_called_once()
-        rabbitmq_channel_mock.basic_publish.assert_called_once_with(
-            exchange="internal",
-             routing_key="route_key.pipeline.started",
-             body=msg_body,
-             properties=mocker.ANY
-        )
-
-    def test_build_headers(self, mocker):
-        queue_config = run.QueueConfig('internal',
-                                       'internal.pipeline.started',
-                                       'route_key.pipeline.started',
-                                       events_pb2.PipelineStarted)
-        assert run.get_headers(queue_config) == {'proto-message-type': 'PipelineStarted'}
-
-        queue_config = run.QueueConfig('internal',
-                                       'internal.pipeline.started',
-                                       'route_key.pipeline.started',
-                                       events_pb2.CodePushed)
-        assert run.get_headers(queue_config) == {'proto-message-type': 'CodePushed'}
+    def test_build_headers(self):
+        worker = Worker(None)
+        assert worker.build_headers(events_pb2.PipelineStarted) == {'proto-message-type': 'PipelineStarted'}
+        assert worker.build_headers(events_pb2.CodePushed) == {'proto-message-type': 'CodePushed'}
