@@ -11,10 +11,9 @@ import os
 
 logger = logging.getLogger('event_writer')
 
-internal_exchange = Exchange('internal', 'topic', durable=True)
-QUEUES = [Queue('internal.pipeline.all', exchange=internal_exchange, routing_key='pipeline.#'),
-          Queue('internal.scm.all', exchange=internal_exchange, routing_key='scm.#'),
-          Queue('internal.artifact.all', exchange=internal_exchange, routing_key='artifact.#')]
+QUEUES = [Queue('internal.pipeline.all', exchange=queue_configs.INTERNAL_EXCHANGE, routing_key='pipeline.#'),
+          Queue('internal.scm.all', exchange=queue_configs.INTERNAL_EXCHANGE, routing_key='scm.#'),
+          Queue('internal.artifact.all', exchange=queue_configs.INTERNAL_EXCHANGE, routing_key='artifact.#')]
 
 class Worker(ConsumerMixin):
 
@@ -26,7 +25,6 @@ class Worker(ConsumerMixin):
         logger.info('Setting up [%s] listeners', len(QUEUES))
 
         return [Consumer(QUEUES,
-                         auto_declare=True,
                          accept=['application/vnd.google.protobuf'],
                          on_message=self.on_message)]
 
