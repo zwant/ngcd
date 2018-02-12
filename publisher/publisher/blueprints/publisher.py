@@ -1,13 +1,14 @@
 from flask import Blueprint, request, session, g, redirect, url_for, abort, \
      render_template, flash, current_app
-from ngcd_common import events_pb2
+from ngcd_common import events_pb2, queue_configs
 from google.protobuf.timestamp_pb2 import Timestamp
-import pika
+from kombu import Connection
 import datetime
 from random import randint
 
 # create our blueprint :)
 bp = Blueprint('publisher', __name__)
+
 
 def timestamp_from_json_string(json_string):
     ts = Timestamp()
@@ -16,16 +17,27 @@ def timestamp_from_json_string(json_string):
     return ts
 
 def connect_rabbitmq():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host=current_app.config['RABBITMQ_HOST']))
-    connection.channel().exchange_declare(exchange='external',
-                                          durable=True,
-                                          exchange_type='topic')
-    return connection.channel()
+    connection = Connection(current_app.config['RABBITMQ_CONNECTION_STRING'])
+    producer = connection.Producer()
+
+    return producer
 
 def get_rabbitmq():
     if not hasattr(g, 'rabbitmq'):
         g.rabbitmq = connect_rabbitmq()
     return g.rabbitmq
+
+def publish_to_queue(rabbitmq, protobuf_obj, queue):
+    rabbitmq.publish(
+        protobuf_obj.SerializeToString(),
+        retry=True,
+        exchange=queue_configs.EXTERNAL_EXCHANGE,
+        routing_key=queue.routing_key,
+        content_type='application/vnd.google.protobuf',
+        content_encoding='binary',
+        delivery_mode=2,
+        declare=[queue]  # declares exchange, queue and binds.
+    )
 
 @bp.route("/pipeline_started/<uuid>/", methods=['POST'])
 def pipeline_started(uuid=None):
@@ -40,12 +52,9 @@ def pipeline_started(uuid=None):
     ts = timestamp_from_json_string(payload['timestamp'])
     event = events_pb2.PipelineStarted(uuid=uuid,
                                        timestamp=ts)
-    rabbitmq.basic_publish(exchange='external',
-                           routing_key='pipeline.started',
-                           body=event.SerializeToString(),
-                           properties=pika.BasicProperties(
-                              delivery_mode = 2, # make message persistent
-                           ))
+
+    queue = queue_configs.EXTERNAL_QUEUES['pipeline.started']
+    publish_to_queue(rabbitmq, event, queue)
     return " [x] Sent PipelineStarted"
 
 @bp.route("/pipeline_finished/<uuid>/", methods=['POST'])
@@ -67,12 +76,9 @@ def pipeline_finished(uuid=None):
                                        duration_ms=payload['duration_ms'])
 
     rabbitmq = get_rabbitmq()
-    rabbitmq.basic_publish(exchange='external',
-                           routing_key='pipeline.finished',
-                           body=event.SerializeToString(),
-                           properties=pika.BasicProperties(
-                              delivery_mode = 2, # make message persistent
-                           ))
+
+    queue = queue_configs.EXTERNAL_QUEUES['pipeline.finished']
+    publish_to_queue(rabbitmq, event, queue)
     return " [x] Sent PipelineFinished"
 
 @bp.route("/pipeline_stage_started/<uuid>/", methods=['POST'])
@@ -91,12 +97,8 @@ def pipeline_stage_started(uuid=None):
                                             pipeline_uuid=payload['pipeline_uuid'],
                                             timestamp=ts)
     rabbitmq = get_rabbitmq()
-    rabbitmq.basic_publish(exchange='external',
-                           routing_key='pipeline.stage.started',
-                           body=event.SerializeToString(),
-                           properties=pika.BasicProperties(
-                              delivery_mode = 2, # make message persistent
-                           ))
+    queue = queue_configs.EXTERNAL_QUEUES['pipeline.stage.started']
+    publish_to_queue(rabbitmq, event, queue)
     return " [x] Sent PipelineStarted"
 
 @bp.route("/pipeline_stage_finished/<uuid>/", methods=['POST'])
@@ -120,12 +122,8 @@ def pipeline_stage_finished(uuid=None):
                                              result=events_pb2.Result.Value(payload['result']),
                                              duration_ms=payload['duration_ms'])
     rabbitmq = get_rabbitmq()
-    rabbitmq.basic_publish(exchange='external',
-                           routing_key='pipeline.stage.finished',
-                           body=event.SerializeToString(),
-                           properties=pika.BasicProperties(
-                              delivery_mode = 2, # make message persistent
-                           ))
+    queue = queue_configs.EXTERNAL_QUEUES['pipeline.stage.finished']
+    publish_to_queue(rabbitmq, event, queue)
     return " [x] Sent PipelineFinished"
 
 @bp.route("/push/", methods=['POST'])
@@ -156,12 +154,8 @@ def codepushed():
                                   commits=commits,
                                   timestamp=ts)
 
-    rabbitmq.basic_publish(exchange='external',
-                           routing_key='scm.repo.push',
-                           body=event.SerializeToString(),
-                           properties=pika.BasicProperties(
-                              delivery_mode = 2, # make message persistent
-                           ))
+    queue = queue_configs.EXTERNAL_QUEUES['scm.repo.push']
+    publish_to_queue(rabbitmq, event, queue)
     return " [x] Sent CodePushed"
 
 @bp.route("/repo/", methods=['POST'])
@@ -184,12 +178,8 @@ def repo_added():
                                   performed_by=performed_by,
                                   timestamp=ts)
 
-    rabbitmq.basic_publish(exchange='external',
-                           routing_key='scm.repo.create',
-                           body=event.SerializeToString(),
-                           properties=pika.BasicProperties(
-                              delivery_mode = 2, # make message persistent
-                           ))
+    queue = queue_configs.EXTERNAL_QUEUES['scm.repo.create']
+    publish_to_queue(rabbitmq, event, queue)
     return " [x] Sent RepoAdded"
 
 @bp.route("/repo/", methods=['DELETE'])
@@ -209,10 +199,6 @@ def repo_removed():
                                           performed_by=performed_by,
                                           timestamp=ts)
 
-    rabbitmq.basic_publish(exchange='external',
-                           routing_key='scm.repo.remove',
-                           body=event.SerializeToString(),
-                           properties=pika.BasicProperties(
-                              delivery_mode = 2, # make message persistent
-                           ))
+    queue = queue_configs.EXTERNAL_QUEUES['scm.repo.remove']
+    publish_to_queue(rabbitmq, event, queue)
     return " [x] Sent RepoRemoved"

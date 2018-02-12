@@ -5,5 +5,4 @@ class Configuration(metaclass=MetaFlaskEnv):
     # Enable Flask's debugging features. Should be False in production
     DEBUG = True
 
-    RABBITMQ_HOST = "localhost"
-    RABBITMQ_PORT = "5672"
+    RABBITMQ_CONNECTION_STRING = "amqp://guest:guest@localhost:5672//"

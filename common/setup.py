@@ -9,7 +9,8 @@ setup(
         'psycopg2',
         'SQLAlchemy',
         'pytz',
-        'python-dateutil'
+        'python-dateutil',
+        'kombu'
     ],
     setup_requires=[
         'pytest-runner',

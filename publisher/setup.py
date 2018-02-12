@@ -6,7 +6,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'Flask',
-        'pika',
+        'kombu',
         'Flask-Env'
     ],
     setup_requires=[

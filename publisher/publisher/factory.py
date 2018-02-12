@@ -22,4 +22,4 @@ def register_teardowns(app):
     @app.teardown_appcontext
     def close_rabbitmq_connection(error):
         if hasattr(g, 'rabbitmq'):
-            g.rabbitmq.close()
+            g.rabbitmq.release()
