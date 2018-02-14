@@ -1,4 +1,4 @@
-from ngcd_common.projections import RepositoryProjection
+from ngcd_common.projections.projections import RepositoryProjection
 from ngcd_common.model import Repository as RepositoryModel
 import dateutil.parser
 
@@ -30,7 +30,8 @@ class TestRepositoryProjection(object):
             'timestamp': '2017-02-02T14:25:43.511Z'
         }
         model = RepositoryModel(external_id='test-org/test-repo')
-        apply_events(RepositoryProjection.apply_event_to_model,
+        projection = RepositoryProjection()
+        apply_events(projection.apply_event_to_model,
                      model,
                      [event])
 
@@ -89,7 +90,8 @@ class TestRepositoryProjection(object):
             'timestamp': '2017-02-03T14:25:43.511Z'
         }
         model = RepositoryModel(external_id='test-org/test-repo')
-        apply_events(RepositoryProjection.apply_event_to_model,
+        projection = RepositoryProjection()
+        apply_events(projection.apply_event_to_model,
                      model,
                      [event, event2])
 
@@ -169,7 +171,8 @@ class TestRepositoryProjection(object):
             'timestamp': '2017-02-02T14:25:43.511Z'
         }
         model = RepositoryModel(external_id='test-org/test-repo')
-        apply_events(RepositoryProjection.apply_event_to_model,
+        projection = RepositoryProjection()
+        apply_events(projection.apply_event_to_model,
                      model,
                      [event, event2, event3])
 

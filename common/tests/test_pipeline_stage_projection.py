@@ -1,4 +1,4 @@
-from ngcd_common.projections import PipelineStageProjection
+from ngcd_common.projections.projections import PipelineStageProjection
 from ngcd_common.model import PipelineStage as PipelineStageModel
 import dateutil.parser
 

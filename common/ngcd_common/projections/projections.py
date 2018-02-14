@@ -1,7 +1,6 @@
 from ngcd_common.model import Event, Pipeline as PipelineModel, PipelineStage as PipelineStageModel, Repository as RepositoryModel
 from copy import deepcopy
 
-
 def calculate_average_duration(prev_num_runs, prev_duration_avg, new_duration):
     if prev_num_runs < 1:
         return new_duration
@@ -18,23 +17,20 @@ class Projection(object):
         raise NotImplementedError("get_external_id_from_body needs to be implemented in inheriting class!")
 
     @classmethod
-    def handle_event(cls, session, event):
+    def handle_event(cls, backend, event):
         raise NotImplementedError("handle_event needs to be implemented in inheriting class!")
 
     @classmethod
-    def get_or_create_with_external_id(cls, external_id, model_cls):
-        return cls.get_or_create_by_query(external_id,
-                                          model_cls.query.filter(model_cls.external_id==external_id),
-                                          model_cls)
+    def get_or_create_by_external_id(cls, backend, external_id, model_self):
+        return backend.get_or_create_by_external_id(external_id,
+                                                      model_self)
+    @classmethod
+    def get_or_create_by_filter(cls, backend, external_id, model, filters):
+        return backend.get_or_create_by_filter(external_id, model, filters)
 
     @classmethod
-    def get_or_create_by_query(cls, external_id, query, model_cls):
-        model = query.first()
-
-        if not model:
-            model = model_cls(external_id=external_id)
-
-        return model
+    def save(cls, backend, model):
+        backend.save(model)
 
 class RepositoryProjection(Projection):
     @classmethod
@@ -56,7 +52,7 @@ class RepositoryProjection(Projection):
             model.last_pusher = event.body['pusher']
             if not model.commits:
                 model.commits = []
-            model.commits.append(event.body['commits'])
+            model.commits.extend(event.body['commits'])
         elif event.type == 'RepositoryAdded':
             model.description = event.body['description']
             model.html_url = event.body['htmlUrl']
@@ -68,10 +64,10 @@ class RepositoryProjection(Projection):
         model.last_update = event.body['timestamp']
 
     @classmethod
-    def handle_event(cls, session, event):
-        repo = cls.get_or_create_with_external_id(cls.get_external_id_from_body(event.body), RepositoryModel)
+    def handle_event(cls, backend, event):
+        repo = cls.get_or_create_by_external_id(backend, cls.get_external_id_from_body(event.body), RepositoryModel)
         cls.apply_event_to_model(repo, event)
-        session.merge(repo)
+        cls.save(backend, repo)
 
 class PipelineStageProjection(Projection):
     @classmethod
@@ -99,16 +95,16 @@ class PipelineStageProjection(Projection):
         model.last_update = event.body['timestamp']
 
     @classmethod
-    def handle_event(cls, session, event):
+    def handle_event(cls, backend, event):
         external_id = cls.get_external_id_from_body(event.body)
-        query = PipelineStageModel.query.filter(PipelineStageModel.external_id==external_id) \
-                                        .filter(PipelineStageModel.pipeline_id==event.body['pipelineUuid'])
-        pipeline_stage = cls.get_or_create_by_query(external_id,
-                                                    query,
-                                                    PipelineStageModel)
+        pipeline_stage = cls.get_or_create_by_filter(backend,
+                                                     external_id,
+                                                     PipelineStageModel,
+                                                     {'external_id': external_id,
+                                                      'pipeline_id': event.body['pipelineUuid']})
         cls.apply_event_to_model(pipeline_stage, event)
 
-        session.merge(pipeline_stage)
+        cls.save(backend, pipeline_stage)
 
 class PipelineProjection(Projection):
     @classmethod
@@ -135,8 +131,8 @@ class PipelineProjection(Projection):
         model.last_update = event.body['timestamp']
 
     @classmethod
-    def handle_event(cls, session, event):
-        pipeline = cls.get_or_create_with_external_id(cls.get_external_id_from_body(event.body), PipelineModel)
+    def handle_event(cls, backend, event):
+        pipeline = cls.get_or_create_by_external_id(backend, cls.get_external_id_from_body(event.body), PipelineModel)
         cls.apply_event_to_model(pipeline, event)
 
-        session.merge(pipeline)
+        cls.save(backend, pipeline)

@@ -1,0 +1,90 @@
+Get a repository
+---
+tags:
+  - repositories
+parameters:
+  - in: path
+    name: repo_name
+    type: string
+    required: true
+    description: The short-name of the repository to get
+produces:
+    - application/json
+responses:
+  '200':
+    description: A repository object
+    schema:
+      type: object
+      properties:
+        pipeline:
+          type: object
+          properties:
+            api_url:
+              description: The API url to this repo
+              type: string
+            external_id:
+              description: The external ID of the repo
+              type: string
+              example: test-org/test-repo
+            short_name:
+              description: The short-name name of this repo
+              type: string
+              example: test-repo
+            full_name:
+              description: The fully qualified name of this repo
+              type: string
+              example: test-org/test-repo
+            head_sha:
+              description: The current head sha of the repo
+              type: string
+              example: "23456"
+            html_url:
+              description: The HTML url to this repo
+              type: integer
+            id:
+              type: integer
+            is_deleted:
+              description: Whether or not this repo has been deleted
+              type: boolean
+            last_update:
+              type: string
+              format: date-time
+            previous_head_sha:
+              description: The previous head sha of the repo
+              type: string
+            type:
+              type: string
+              enum: [PUBLIC_GITHUB,GITHUB_ENTERPRISE,GITLAB,PUBLIC_BITBUCKET,BITBUCKET_ENTERPRISE]
+            last_pusher:
+              type: object
+              description: The last user to push to this repo
+              properties:
+                email:
+                  type: string
+                id:
+                  type: string
+                username:
+                  type: string
+            commits:
+              type: array
+              items:
+                type: object
+                properties:
+                  author:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      id:
+                        type: string
+                      username:
+                        type: string
+                  message:
+                    type: string
+                  sha:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+  '404':
+    description: A repository with the given external id was not found.

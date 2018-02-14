@@ -22,9 +22,10 @@ class Pipeline(Base):
     number_of_runs = Column(Integer, nullable=True)
     average_duration = Column(Integer, nullable=True)
 
-    def __init__(self, external_id, currently_running=False, result=None, last_update=None,
+    def __init__(self, external_id, id=None, currently_running=False, result=None, last_update=None,
                  started_running_at=None, finished_running_at=None, last_duration=None, number_of_runs=0,
                  average_duration=None):
+        self.id = id
         self.external_id = external_id
         self.currently_running = currently_running
         self.result = result
@@ -49,12 +50,12 @@ class Pipeline(Base):
         return {
             'id': self.id,
             'external_id': self.external_id,
-            'last_update': self.last_update.isoformat(),
+            #'last_update': self.last_update.isoformat(),
             'currently_running': self.currently_running,
             'result': self.result,
             'number_of_runs': self.number_of_runs,
-            'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
-            'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
+            #'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
+            #'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
             'average_duration': self.average_duration,
             'last_duration': self.last_duration
         }
@@ -73,9 +74,10 @@ class PipelineStage(Base):
     average_duration = Column(Integer, nullable=True)
     last_duration = Column(Integer, nullable=True)
 
-    def __init__(self, external_id, pipeline_id=None, currently_running=False, result=None, last_update=None,
+    def __init__(self, external_id, id=None, pipeline_id=None, currently_running=False, result=None, last_update=None,
                  started_running_at=None, finished_running_at=None, last_duration=None, number_of_runs=0,
                  average_duration=None):
+        self.id = id
         self.external_id = external_id
         self.pipeline_id = pipeline_id
         self.currently_running = currently_running
@@ -103,11 +105,11 @@ class PipelineStage(Base):
             'id': self.id,
             'external_id': self.external_id,
             'pipeline_id': self.pipeline_id,
-            'last_update': self.last_update.isoformat(),
+            #'last_update': self.last_update.isoformat(),
             'currently_running': self.currently_running,
             'result': self.result,
-            'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
-            'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
+            #'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
+            #'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
             'number_of_runs': self.number_of_runs,
             'average_duration': self.average_duration,
             'last_duration': self.last_duration
@@ -134,6 +136,7 @@ class Repository(Base):
 
     def __init__(self,
                  external_id,
+                 id=None,
                  is_deleted=False,
                  short_name=None,
                  full_name=None,
@@ -148,6 +151,7 @@ class Repository(Base):
                  previous_head_sha=None,
                  last_update=None,
                  commits=None):
+        self.id = id
         self.external_id = external_id
         self.is_deleted = is_deleted
         self.short_name = short_name
@@ -188,7 +192,7 @@ class Repository(Base):
             'is_deleted': self.is_deleted,
             'html_url': self.html_url,
             'api_url': self.api_url,
-            'last_update': self.last_update.isoformat(),
+            #'last_update': self.last_update.isoformat(),
             'last_pusher': self.last_pusher,
             'head_sha': self.head_sha,
             'previous_head_sha': self.previous_head_sha,

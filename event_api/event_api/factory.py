@@ -23,22 +23,45 @@ def create_app():
     db.register_base(Base)
 
     with app.app_context():
-        if app.config['CLEAN_DB'] == True:
-            app.logger.info('Cleaning DB')
-            Pipeline.__table__.drop(db.session.bind, checkfirst=True)
-            PipelineStage.__table__.drop(db.session.bind, checkfirst=True)
-            Repository.__table__.drop(db.session.bind, checkfirst=True)
-        else:
-            app.logger.info('Not cleaning DB')
-        Pipeline.__table__.create(db.session.bind, checkfirst=True)
-        PipelineStage.__table__.create(db.session.bind, checkfirst=True)
-        Repository.__table__.create(db.session.bind, checkfirst=True)
+        if app.config['PROJECTION_STORE_BACKEND'] == 'postgres':
+            if app.config['CLEAN_DB'] == True:
+                app.logger.info('Cleaning DB')
+                Pipeline.__table__.drop(db.session.bind, checkfirst=True)
+                PipelineStage.__table__.drop(db.session.bind, checkfirst=True)
+                Repository.__table__.drop(db.session.bind, checkfirst=True)
+            else:
+                app.logger.info('Not cleaning DB')
+            Pipeline.__table__.create(db.session.bind, checkfirst=True)
+            PipelineStage.__table__.create(db.session.bind, checkfirst=True)
+            Repository.__table__.create(db.session.bind, checkfirst=True)
 
     register_blueprints(app)
     register_swagger_ui(app)
 
 
     return app
+
+def get_projector_backend(app):
+    from ngcd_common.projections.backends import PostgresBackend, InMemoryBackend
+
+    projection_store_config = app.config['PROJECTION_STORE_BACKEND']
+    projector_backend = getattr(g, '_projector_backend', None)
+    if projector_backend is None:
+        if projection_store_config == 'inmemory':
+            projector_backend = g._projector_backend = InMemoryBackend()
+        elif projection_store_config == 'postgres':
+            projector_backend = g._projector_backend = PostgresBackend(db.session)
+        else:
+            raise NotImplementedError('No such projection store backend [{}]'.format(projection_store_config))
+    return projector_backend
+
+def get_projector(app):
+    from ngcd_common.projections.projector import Projector
+    backend = get_projector_backend(app)
+    projector = getattr(g, '_projector', None)
+    if projector is None:
+        projector = g._projector = Projector(backend)
+    return projector
 
 def setup_logging(app):
     path = app.config['LOGCONFIG']
