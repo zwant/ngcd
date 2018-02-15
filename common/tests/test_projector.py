@@ -1,5 +1,5 @@
 from ngcd_common.projections.projector import Projector
-from ngcd_common.projections.backends import PostgresBackend, InMemoryBackend
+from ngcd_common.projections.backends import SQLAlchemyBackend, InMemoryBackend
 from ngcd_common import model, events_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 import dateutil.parser
@@ -20,17 +20,17 @@ def pytest_generate_tests(metafunc):
         argvalues.append(([x[1] for x in items]))
     metafunc.parametrize(argnames, argvalues, ids=idlist, scope="class")
 
-postgres_backend = ('postgres', {'backend_name': 'postgres'})
+sqlalchemy_backend = ('sqlalchemy', {'backend_name': 'sqlalchemy'})
 in_memory_backend = ('in_memory', {'backend_name': 'in_memory'})
 
 def get_backend(name, db_session):
-    if name == 'postgres':
-        return PostgresBackend(db_session)
+    if name == 'sqlalchemy':
+        return SQLAlchemyBackend(db_session)
     else:
         return InMemoryBackend()
 
 class TestProjector(object):
-    backends = [postgres_backend, in_memory_backend]
+    backends = [sqlalchemy_backend, in_memory_backend]
 
     def test_pipeline_currently_running(self, backend_name, session):
         ts = timestamp_from_json_string("2017-02-02T14:25:43.511Z")
@@ -39,7 +39,7 @@ class TestProjector(object):
         model.Event.write_event(session, event)
 
         backend = get_backend(backend_name, session)
-        projector = Projector(backend)
+        projector = Projector(backend, session)
         projector.process_events()
 
         pipeline = backend.get_one_by_external_id("test1", model.Pipeline)
@@ -60,7 +60,7 @@ class TestProjector(object):
         model.Event.write_event(session, event)
 
         backend = get_backend(backend_name, session)
-        projector = Projector(backend)
+        projector = Projector(backend, session)
         projector.process_events()
 
         pipeline = backend.get_one_by_external_id("test1", model.Pipeline)
@@ -68,8 +68,8 @@ class TestProjector(object):
         assert pipeline.external_id == 'test1'
         assert pipeline.currently_running == False
         assert pipeline.result == "SUCCESS"
-        assert dateutil.parser.parse(str(pipeline.started_running_at)) == dateutil.parser.parse("2017-02-02T14:25:43.511Z")
-        assert dateutil.parser.parse(str(pipeline.finished_running_at)) == dateutil.parser.parse("2017-02-02T14:26:43.511Z")
+        assert pipeline.started_running_at == dateutil.parser.parse("2017-02-02T14:25:43.511Z")
+        assert pipeline.finished_running_at == dateutil.parser.parse("2017-02-02T14:26:43.511Z")
 
     def test_stage_only_applies_to_same_pipeline(self, backend_name, session):
         # First pipeline
@@ -121,7 +121,7 @@ class TestProjector(object):
         model.Event.write_event(session, event)
 
         backend = get_backend(backend_name, session)
-        projector = Projector(backend)
+        projector = Projector(backend, session)
         projector.process_events()
 
         pipeline_stage = backend.get_one_by_filter(model.PipelineStage, {"pipeline_id": "test1",
@@ -131,5 +131,5 @@ class TestProjector(object):
         assert pipeline_stage.pipeline_id == 'test1'
         assert pipeline_stage.currently_running == False
         assert pipeline_stage.result == "SUCCESS"
-        assert dateutil.parser.parse(str(pipeline_stage.started_running_at)) == dateutil.parser.parse("2017-02-02T14:25:43.511Z")
-        assert dateutil.parser.parse(str(pipeline_stage.finished_running_at)) == dateutil.parser.parse("2017-02-02T14:26:43.511Z")
+        assert pipeline_stage.started_running_at == dateutil.parser.parse("2017-02-02T14:25:43.511Z")
+        assert pipeline_stage.finished_running_at == dateutil.parser.parse("2017-02-02T14:26:43.511Z")

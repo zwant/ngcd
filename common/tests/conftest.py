@@ -30,7 +30,8 @@ def db_engine(request):
         ).connect() as connection:
             connection.execute("drop database test_db")
 
-    model.Base.metadata.create_all(_db_engine)
+    model.EventBase.metadata.create_all(_db_engine)
+    model.ProjectionBase.metadata.create_all(_db_engine)
 
     request.addfinalizer(teardown)
 
@@ -50,7 +51,8 @@ def session(db_engine, request):
                                           autoflush=False,
                                           bind=connection))
 
-    model.Base.query = session.query_property()
+    model.ProjectionBase.query = session.query_property()
+    model.EventBase.query = session.query_property()
 
     def teardown():
         transaction.rollback()

@@ -85,7 +85,7 @@ class InMemoryBackend(ProjectionBackend):
     def commit(self):
         pass
 
-class PostgresBackend(ProjectionBackend):
+class SQLAlchemyBackend(ProjectionBackend):
     def __init__(self, db_session):
         self.db_session = db_session
 

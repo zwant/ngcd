@@ -1,15 +1,36 @@
 import pytz
-
+import json
 from ngcd_common import getLogger
 from sqlalchemy.dialects.postgresql import UUID, JSONB, TIMESTAMP
 from google.protobuf.json_format import MessageToDict
-from sqlalchemy import Column, Integer, String, DateTime, func, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, func, Boolean, types
 from sqlalchemy.ext.declarative import declarative_base
 import dateutil.parser
 
-Base = declarative_base()
+ProjectionBase = declarative_base()
+EventBase = declarative_base()
 
-class Pipeline(Base):
+class StringyJSON(types.TypeDecorator):
+    """Stores and retrieves JSON as TEXT."""
+
+    impl = types.TEXT
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            value = json.dumps(value)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = json.loads(value)
+        return value
+
+
+# TypeEngine.with_variant says "use StringyJSON instead when
+# connecting to 'sqlite'"
+AdaptableJSONB = JSONB().with_variant(StringyJSON, 'sqlite')
+
+class Pipeline(ProjectionBase):
     __tablename__ = 'pipelines'
     id = Column(Integer, primary_key=True)
     external_id = Column(String, nullable=False, index=True)
@@ -50,17 +71,17 @@ class Pipeline(Base):
         return {
             'id': self.id,
             'external_id': self.external_id,
-            #'last_update': self.last_update.isoformat(),
+            'last_update': self.last_update.isoformat(),
             'currently_running': self.currently_running,
             'result': self.result,
             'number_of_runs': self.number_of_runs,
-            #'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
-            #'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
+            'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
+            'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
             'average_duration': self.average_duration,
             'last_duration': self.last_duration
         }
 
-class PipelineStage(Base):
+class PipelineStage(ProjectionBase):
     __tablename__ = 'pipeline_stages'
     id = Column(Integer, primary_key=True)
     external_id = Column(String, nullable=False, index=True)
@@ -105,17 +126,17 @@ class PipelineStage(Base):
             'id': self.id,
             'external_id': self.external_id,
             'pipeline_id': self.pipeline_id,
-            #'last_update': self.last_update.isoformat(),
+            'last_update': self.last_update.isoformat(),
             'currently_running': self.currently_running,
             'result': self.result,
-            #'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
-            #'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
+            'started_running_at': self.started_running_at.isoformat() if self.started_running_at else None,
+            'finished_running_at': self.finished_running_at.isoformat() if self.finished_running_at else None,
             'number_of_runs': self.number_of_runs,
             'average_duration': self.average_duration,
             'last_duration': self.last_duration
         }
 
-class Repository(Base):
+class Repository(ProjectionBase):
     __tablename__ = 'repositories'
     id = Column(Integer, primary_key=True)
     external_id = Column(String, nullable=False, index=True)
@@ -126,13 +147,13 @@ class Repository(Base):
     description = Column(String, nullable=True)
     html_url = Column(String, nullable=True)
     api_url = Column(String, nullable=True)
-    created_by = Column(JSONB, nullable=True)
-    deleted_by = Column(JSONB, nullable=True)
-    last_pusher = Column(JSONB, nullable=False)
+    created_by = Column(AdaptableJSONB, nullable=True)
+    deleted_by = Column(AdaptableJSONB, nullable=True)
+    last_pusher = Column(AdaptableJSONB, nullable=True)
     head_sha = Column(String, nullable=True)
     previous_head_sha = Column(String, nullable=True)
     last_update = Column(TIMESTAMP(timezone=True), nullable=False)
-    commits = Column(JSONB, nullable=False, index=True)
+    commits = Column(AdaptableJSONB, nullable=True, index=True)
 
     def __init__(self,
                  external_id,
@@ -192,19 +213,19 @@ class Repository(Base):
             'is_deleted': self.is_deleted,
             'html_url': self.html_url,
             'api_url': self.api_url,
-            #'last_update': self.last_update.isoformat(),
+            'last_update': self.last_update.isoformat(),
             'last_pusher': self.last_pusher,
             'head_sha': self.head_sha,
             'previous_head_sha': self.previous_head_sha,
             'commits': self.commits
         }
 
-class Event(Base):
+class Event(EventBase):
     __tablename__ = 'events'
 
     id = Column(Integer, primary_key=True)
     type = Column(String, nullable=False, index=True)
-    body = Column(JSONB, nullable=False, index=True)
+    body = Column(AdaptableJSONB, nullable=False, index=True)
     inserted_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
     event_origin_time = Column(TIMESTAMP(timezone=True), nullable=False)
 

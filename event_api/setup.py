@@ -8,7 +8,6 @@ setup(
         'pika',
         'SQLAlchemy',
         'Flask',
-        'Flask-SQLAlchemy',
         'flask-swagger',
         'flask-swagger-ui',
         'Flask-Env'

@@ -1,5 +1,6 @@
 from ngcd_common.model import Event, Pipeline as PipelineModel, PipelineStage as PipelineStageModel, Repository as RepositoryModel
 from copy import deepcopy
+import dateutil.parser
 
 def calculate_average_duration(prev_num_runs, prev_duration_avg, new_duration):
     if prev_num_runs < 1:
@@ -61,7 +62,7 @@ class RepositoryProjection(Projection):
         elif event.type == 'RepositoryRemoved':
             model.is_deleted = True
             model.deleted_by = event.body['performedBy']
-        model.last_update = event.body['timestamp']
+        model.last_update = dateutil.parser.parse(event.body['timestamp'])
 
     @classmethod
     def handle_event(cls, backend, event):
@@ -82,17 +83,17 @@ class PipelineStageProjection(Projection):
     def apply_event_to_model(cls, model, event):
         if event.type == 'PipelineStageStarted':
             model.currently_running = True
-            model.started_running_at = event.body['timestamp']
+            model.started_running_at = dateutil.parser.parse(event.body['timestamp'])
         elif event.type == 'PipelineStageFinished':
             model.currently_running = False
             model.result = event.body['result']
-            model.finished_running_at = event.body['timestamp']
+            model.finished_running_at = dateutil.parser.parse(event.body['timestamp'])
             model.last_duration = event.body['durationMs']
             model.average_duration = calculate_average_duration(model.number_of_runs, model.average_duration, event.body['durationMs'])
             model.number_of_runs = model.number_of_runs + 1
 
         model.pipeline_id = event.body['pipelineUuid']
-        model.last_update = event.body['timestamp']
+        model.last_update = dateutil.parser.parse(event.body['timestamp'])
 
     @classmethod
     def handle_event(cls, backend, event):
@@ -119,16 +120,16 @@ class PipelineProjection(Projection):
     def apply_event_to_model(cls, model, event):
         if event.type == 'PipelineStarted':
             model.currently_running = True
-            model.started_running_at = event.body['timestamp']
+            model.started_running_at = dateutil.parser.parse(event.body['timestamp'])
         elif event.type == 'PipelineFinished':
             model.currently_running = False
             model.result = event.body['result']
-            model.finished_running_at = event.body['timestamp']
+            model.finished_running_at = dateutil.parser.parse(event.body['timestamp'])
             model.last_duration = event.body['durationMs']
             model.average_duration = calculate_average_duration(model.number_of_runs, model.average_duration, event.body['durationMs'])
             model.number_of_runs = model.number_of_runs + 1
 
-        model.last_update = event.body['timestamp']
+        model.last_update = dateutil.parser.parse(event.body['timestamp'])
 
     @classmethod
     def handle_event(cls, backend, event):

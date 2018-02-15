@@ -1,6 +1,6 @@
 from ngcd_common import model
 from flask import Blueprint, jsonify, abort, request, g, current_app
-from event_api.factory import db, get_projector, get_projector_backend
+from event_api.factory import get_projector, get_projector_backend, get_projection_db_session
 
 # create our blueprint :)
 bp = Blueprint('events', __name__)

@@ -52,7 +52,7 @@ class TestRepositoryProjection(object):
             'userName': 'test-user',
             'email': 'test-email'
         }
-        assert model.last_update == '2017-02-02T14:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-02T14:25:43.511Z')
 
     def test_create_then_remove_repository(self):
         event = Container()
@@ -118,7 +118,7 @@ class TestRepositoryProjection(object):
             'userName': 'other-user',
             'email': 'other-email'
         }
-        assert model.last_update == '2017-02-03T14:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-03T14:25:43.511Z')
 
     def test_create_commit_then_remove_repository(self):
         event = Container()
@@ -199,7 +199,7 @@ class TestRepositoryProjection(object):
             'userName': 'other-user',
             'email': 'other-email'
         }
-        assert model.last_update == '2017-02-02T14:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-02T14:25:43.511Z')
 
     def test_apply_single_code_pushed_event_to_empty(self):
         event = Container()
@@ -229,7 +229,7 @@ class TestRepositoryProjection(object):
         assert model.previous_head_sha == '1'
         assert len(model.commits) == 1
         assert model.last_pusher == 'test-user'
-        assert model.last_update == '2017-02-02T14:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-02T14:25:43.511Z')
 
     def test_apply_multiple_code_pushed_events_to_empty(self):
         event1 = Container()
@@ -275,7 +275,7 @@ class TestRepositoryProjection(object):
         assert model.previous_head_sha == '2'
         assert len(model.commits) == 2
         assert model.last_pusher == 'test-user'
-        assert model.last_update == '2017-02-02T15:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-02T15:25:43.511Z')
 
     def test_apply_single_code_pushed_event_to_pre_existing(self):
         event1 = Container()
@@ -312,7 +312,7 @@ class TestRepositoryProjection(object):
         assert model.previous_head_sha == '1'
         assert len(model.commits) == 2
         assert model.last_pusher == 'test-user'
-        assert model.last_update == '2017-02-02T15:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-02T15:25:43.511Z')
 
     def doesnt_apply_unrelated_event(self):
         event = Container()

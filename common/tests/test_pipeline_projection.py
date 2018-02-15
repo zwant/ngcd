@@ -24,8 +24,8 @@ class TestPipelineProjection(object):
         assert model.external_id == 'test'
         assert model.currently_running == True
         assert model.result == None
-        assert model.last_update == '2017-02-02T14:25:43.511Z'
-        assert model.started_running_at == '2017-02-02T14:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-02T14:25:43.511Z')
+        assert model.started_running_at == dateutil.parser.parse('2017-02-02T14:25:43.511Z')
         assert model.number_of_runs == 0
 
     def test_apply_started_and_finished_events_to_empty(self):
@@ -50,9 +50,9 @@ class TestPipelineProjection(object):
         assert model.external_id == 'test'
         assert model.currently_running == False
         assert model.result == 'ABORTED'
-        assert model.last_update == '2017-02-02T15:25:43.511Z'
-        assert model.started_running_at == '2017-02-02T14:25:43.511Z'
-        assert model.finished_running_at == '2017-02-02T15:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-02T15:25:43.511Z')
+        assert model.started_running_at == dateutil.parser.parse('2017-02-02T14:25:43.511Z')
+        assert model.finished_running_at == dateutil.parser.parse('2017-02-02T15:25:43.511Z')
         assert model.average_duration == 1000
         assert model.number_of_runs == 1
         assert model.last_duration == 1000
@@ -93,9 +93,9 @@ class TestPipelineProjection(object):
         assert model.external_id == 'test'
         assert model.currently_running == False
         assert model.result == 'SUCCESS'
-        assert model.last_update == '2017-02-03T15:25:43.511Z'
-        assert model.started_running_at == '2017-02-03T14:25:43.511Z'
-        assert model.finished_running_at == '2017-02-03T15:25:43.511Z'
+        assert model.last_update == dateutil.parser.parse('2017-02-03T15:25:43.511Z')
+        assert model.started_running_at == dateutil.parser.parse('2017-02-03T14:25:43.511Z')
+        assert model.finished_running_at == dateutil.parser.parse('2017-02-03T15:25:43.511Z')
         assert model.average_duration == 750
         assert model.number_of_runs == 2
         assert model.last_duration == 500

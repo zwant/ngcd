@@ -1,6 +1,6 @@
+from ngcd_common.model import ProjectionBase
 from flask import Flask, g
 from werkzeug.utils import find_modules, import_string
-from event_api.sqlalchemy_patch import SQLAlchemy
 from event_api.config import Configuration
 import logging
 import logging.config
@@ -8,49 +8,70 @@ import sys
 import os
 import yaml
 
-db = SQLAlchemy()
-
 def create_app():
-    from ngcd_common.model import Base
 
     app = Flask('event_api')
     app.config.from_object(Configuration)
     setup_logging(app)
-
-    from ngcd_common.model import Pipeline, PipelineStage, Repository
-
-    db.init_app(app)
-    db.register_base(Base)
-
-    with app.app_context():
-        if app.config['PROJECTION_STORE_BACKEND'] == 'postgres':
-            if app.config['CLEAN_DB'] == True:
-                app.logger.info('Cleaning DB')
-                Pipeline.__table__.drop(db.session.bind, checkfirst=True)
-                PipelineStage.__table__.drop(db.session.bind, checkfirst=True)
-                Repository.__table__.drop(db.session.bind, checkfirst=True)
-            else:
-                app.logger.info('Not cleaning DB')
-            Pipeline.__table__.create(db.session.bind, checkfirst=True)
-            PipelineStage.__table__.create(db.session.bind, checkfirst=True)
-            Repository.__table__.create(db.session.bind, checkfirst=True)
-
+    if app.config['PROJECTION_STORE_BACKEND_TYPE'] == 'sqlalchemy':
+        setup_db_tables(app)
+        
     register_blueprints(app)
     register_swagger_ui(app)
 
-
     return app
 
-def get_projector_backend(app):
-    from ngcd_common.projections.backends import PostgresBackend, InMemoryBackend
+def setup_db_tables(app):
+    with app.app_context():
+        projection_db_session = get_projection_db_session(app)
 
-    projection_store_config = app.config['PROJECTION_STORE_BACKEND']
+        if app.config['CLEAN_PROJECTION_DB'] == True:
+            app.logger.info('Cleaning DB')
+            ProjectionBase.metadata.drop_all(bind=projection_db_session.get_bind())
+        else:
+            app.logger.info('Not cleaning DB')
+
+        ProjectionBase.metadata.create_all(bind=projection_db_session.get_bind())
+        ProjectionBase.query = get_projection_db_session(app).query_property()
+
+def get_event_db_session(app):
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import scoped_session
+    from sqlalchemy.orm import sessionmaker
+
+    event_db_session = getattr(g, '_event_db_session', None)
+    if event_db_session is None:
+        db_engine = create_engine(app.config['EVENT_SQLALCHEMY_DATABASE_URI'])
+        event_db_session = g._event_db_session = scoped_session(sessionmaker(bind=db_engine))
+
+    return event_db_session
+
+def get_projection_db_session(app):
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import scoped_session
+    from sqlalchemy.orm import sessionmaker
+
+    projection_db_session = getattr(g, '_projection_db_session', None)
+    if projection_db_session is None:
+        db_engine = create_engine(app.config['PROJECTION_SQLALCHEMY_DATABASE_URI'])
+
+        projection_db_session = g._projection_db_session = scoped_session(sessionmaker(autocommit=False,
+                                                                          autoflush=False,
+                                                                          bind=db_engine))
+    return projection_db_session
+
+
+
+def get_projector_backend(app):
+    from ngcd_common.projections.backends import SQLAlchemyBackend, InMemoryBackend
+
     projector_backend = getattr(g, '_projector_backend', None)
     if projector_backend is None:
+        projection_store_config = app.config['PROJECTION_STORE_BACKEND_TYPE']
         if projection_store_config == 'inmemory':
             projector_backend = g._projector_backend = InMemoryBackend()
-        elif projection_store_config == 'postgres':
-            projector_backend = g._projector_backend = PostgresBackend(db.session)
+        elif projection_store_config == 'sqlalchemy':
+            projector_backend = g._projector_backend = SQLAlchemyBackend(get_projection_db_session(app))
         else:
             raise NotImplementedError('No such projection store backend [{}]'.format(projection_store_config))
     return projector_backend
@@ -60,7 +81,7 @@ def get_projector(app):
     backend = get_projector_backend(app)
     projector = getattr(g, '_projector', None)
     if projector is None:
-        projector = g._projector = Projector(backend)
+        projector = g._projector = Projector(backend, get_event_db_session(app))
     return projector
 
 def setup_logging(app):

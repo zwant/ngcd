@@ -1,18 +1,21 @@
 from ngcd_common import getLogger
-from ngcd_common.model import Event
+from ngcd_common.model import Event, EventBase
 from ngcd_common.projections.projections import Projection
-from ngcd_common.projections.backends import PostgresBackend
+from ngcd_common.projections.backends import SQLAlchemyBackend
 
 class Projector(object):
     event_handling_classes = Projection.__subclasses__()
 
     last_processed_event_id = 0
     backend = None
+    event_db_session = None
 
-    def __init__(self, backend):
+    def __init__(self, backend, event_db_session):
         self.backend = backend
+        self.event_db_session = event_db_session
 
     def process_events(self, until=10000, only=None):
+        EventBase.query = self.event_db_session.query_property()
         query = Event.query \
                     .filter(Event.id > self.last_processed_event_id) \
                     .order_by(Event.event_origin_time.asc(), Event.id.asc())
