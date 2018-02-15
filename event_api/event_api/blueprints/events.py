@@ -1,6 +1,6 @@
 from ngcd_common import model
 from flask import Blueprint, jsonify, abort, request, g, current_app
-from event_api.factory import get_projector, get_projector_backend, get_projection_db_session
+from event_api.factory import get_projector, get_projection_db_session
 
 # create our blueprint :)
 bp = Blueprint('events', __name__)
@@ -22,13 +22,13 @@ def pipeline(external_id=None):
     swagger_from_file: event_api/blueprints/swagger_docs/pipeline.yaml
 
     """
-    get_projector(current_app).process_events()
-    projector_backend = get_projector_backend(current_app)
-    pipeline = projector_backend.get_one_by_external_id(external_id, model.Pipeline)
+    projector = get_projector(current_app)
+    projector.process_events()
+    pipeline = projector.backend.get_one_by_external_id(external_id, model.Pipeline)
     if not pipeline:
         abort(404)
 
-    stages = projector_backend.get_by_filter(model.PipelineStage, {"pipeline_id": pipeline.external_id})
+    stages = projector.backend.get_by_filter(model.PipelineStage, {"pipeline_id": pipeline.external_id})
     return jsonify({"pipeline": pipeline.as_dict(),
                     "stages": [stage.as_dict() for stage in stages]})
 
@@ -38,9 +38,9 @@ def pipeline_stage(pipeline_external_id=None, external_id=None):
     swagger_from_file: event_api/blueprints/swagger_docs/pipeline_stage.yaml
 
     """
-    get_projector(current_app).process_events()
-    projector_backend = get_projector_backend(current_app)
-    stage = projector_backend.get_one_by_filter(model.PipelineStage,
+    projector = get_projector(current_app)
+    projector.process_events()
+    stage = projector.backend.get_one_by_filter(model.PipelineStage,
                                                 {"pipeline_id": pipeline_external_id,
                                                  "external_id": external_id})
     if not stage:
@@ -53,9 +53,9 @@ def repository(repo_name=None):
     swagger_from_file: event_api/blueprints/swagger_docs/repository.yaml
 
     """
-    get_projector(current_app).process_events()
-    projector_backend = get_projector_backend(current_app)
-    repository = projector_backend.get_one_by_filter(model.Repository,
+    projector = get_projector(current_app)
+    projector.process_events()
+    repository = projector.backend.get_one_by_filter(model.Repository,
                                                      {"short_name": repo_name})
     if not repository:
         abort(404)
