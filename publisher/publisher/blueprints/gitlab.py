@@ -71,7 +71,7 @@ def handle_merge_request(payload):
     elif action == 'closed':
         return _handle_closed_merge_request(payload)
     else:
-        print('Dont know how to handle state [{}]'.format(action))
+        current_app.logger.debug('Dont know how to handle state [%s]', action)
         return (None, None)
 
 def _handle_opened_merge_request(payload):
@@ -119,7 +119,7 @@ def handle_repo_updated(payload):
     elif action == 'project_destroy':
         return _handle_repo_removed(payload)
     else:
-        current_app.logger.debug('Dont know how to handle event type [{}]'.format(action))
+        current_app.logger.debug('Dont know how to handle event type [%s]', action)
         return (None, None)
 
 def _handle_repo_created(payload):
@@ -163,10 +163,10 @@ def webhook():
     payload = request.get_json(force=True)
     event_type = request.headers.get('X-Gitlab-Event')
     if event_type not in HOOK_HANDLERS:
-        current_app.logger.debug('Not caring about event type [{}]'.format(event_type))
+        current_app.logger.debug('Not caring about event type [%s]', event_type)
         return 'OK'
 
-    current_app.logger.debug('Handling event type [{}]'.format(event_type))
+    current_app.logger.debug('Handling event type [%s]', event_type)
     handler_func = HOOK_HANDLERS[event_type]
     handler_func(payload)
     rabbitmq = get_rabbitmq()
