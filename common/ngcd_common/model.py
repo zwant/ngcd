@@ -220,6 +220,80 @@ class Repository(ProjectionBase):
             'commits': self.commits
         }
 
+class PullRequest(ProjectionBase):
+    __tablename__ = 'pull_requests'
+    id = Column(Integer, primary_key=True)
+    external_id = Column(String, nullable=False, index=True)
+    is_closed = Column(Boolean, nullable=False, index=True)
+    repo_external_id = Column(String, nullable=False)
+    head_sha = Column(String, nullable=False, index=True)
+    base_sha = Column(String, nullable=False, index=True)
+    base_repo_external_id = Column(String, nullable=False, index=True)
+    html_url = Column(String, nullable=True)
+    api_url = Column(String, nullable=True)
+    opened_by = Column(AdaptableJSONB, nullable=True)
+    closed_by = Column(AdaptableJSONB, nullable=True)
+    opened_at = Column(TIMESTAMP(timezone=True), nullable=False)
+    closed_at = Column(TIMESTAMP(timezone=True), nullable=True)
+    last_update = Column(TIMESTAMP(timezone=True), nullable=False)
+
+    def __init__(self,
+                 external_id,
+                 id=None,
+                 is_closed=False,
+                 repo_external_id=None,
+                 head_sha=None,
+                 base_sha=None,
+                 base_repo_external_id=None,
+                 html_url=None,
+                 api_url=None,
+                 opened_by=None,
+                 closed_by=None,
+                 opened_at=None,
+                 closed_at=None,
+                 last_update=None):
+        self.id = id
+        self.external_id = external_id
+        self.is_closed = is_closed
+        self.repo_external_id = repo_external_id
+        self.head_sha = head_sha
+        self.base_sha = base_sha
+        self.base_repo_external_id = base_repo_external_id
+        self.html_url = html_url
+        self.api_url = api_url
+        self.opened_by = opened_by
+        self.closed_by = closed_by
+        self.opened_at = opened_at
+        self.closed_at = closed_at
+        self.last_update = last_update
+
+    def __repr__(self):
+        return '<PullRequest {}> is_closed: {}, repo_external_id: {}, head_sha: {}, base_sha: {}, last_update: {}'.format(
+        self.external_id,
+        self.is_closed,
+        self.repo_external_id,
+        self.head_sha,
+        self.base_sha,
+        self.last_update)
+
+    def as_dict(self):
+        return {
+            'id': self.id,
+            'external_id': self.external_id,
+            'is_closed': self.is_closed,
+            'repo_external_id': self.repo_external_id,
+            'head_sha': self.head_sha,
+            'base_sha': self.base_sha,
+            'base_repo_external_id': self.base_repo_external_id,
+            'html_url': self.html_url,
+            'api_url': self.api_url,
+            'last_update': self.last_update.isoformat(),
+            'opened_by': self.opened_by,
+            'closed_by': self.closed_by,
+            'opened_at': self.opened_at,
+            'closed_at': self.closed_at
+        }
+
 class Event(EventBase):
     __tablename__ = 'events'
 

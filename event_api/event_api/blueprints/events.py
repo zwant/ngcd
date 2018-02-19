@@ -69,3 +69,14 @@ def commit(sha=None):
     if not repos:
         abort(404)
     return jsonify([repo.as_dict() for repo in repos])
+
+@bp.route("/pull_request/<id>/")
+def pull_request(id=None):
+    repo_id = request.args.get('repo')
+    external_id = '{}/{}'.format(repo_id, id)
+    projector = get_projector(current_app)
+    projector.process_events()
+    pr = projector.backend.get_one_by_external_id(external_id, model.PullRequest)
+    if not pr:
+        abort(404)
+    return jsonify(pr.as_dict())

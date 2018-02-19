@@ -1,4 +1,4 @@
-from ngcd_common.model import Event, Pipeline as PipelineModel, PipelineStage as PipelineStageModel, Repository as RepositoryModel
+from ngcd_common.model import Event, Pipeline as PipelineModel, PipelineStage as PipelineStageModel, Repository as RepositoryModel, PullRequest as PullRequestModel
 from copy import deepcopy
 import dateutil.parser
 
@@ -137,3 +137,35 @@ class PipelineProjection(Projection):
         cls.apply_event_to_model(pipeline, event)
 
         cls.save(backend, pipeline)
+
+class PullRequestProjection(Projection):
+    @classmethod
+    def get_interesting_events(cls):
+        return ['PullRequestOpened', 'PullRequestClosed']
+
+    @classmethod
+    def get_external_id_from_body(cls, body):
+        return '{}/{}'.format(body['prRepo']['fullName'], body['id'])
+
+    @classmethod
+    def apply_event_to_model(cls, model, event):
+        model.repo_external_id = event.body['prRepo']['fullName']
+        if event.type == 'PullRequestOpened':
+            model.head_sha = event.body['headSha']
+            model.base_sha = event.body['baseSha']
+            model.base_repo_external_id = event.body['baseRepo']['fullName']
+            model.html_url = event.body['htmlUrl']
+            model.api_url = event.body['apiUrl']
+            model.opened_by = event.body['openedBy']
+            model.opened_at = dateutil.parser.parse(event.body['timestamp'])
+        elif event.type == 'PullRequestClosed':
+            model.closed_by = event.body['closedBy']
+            model.closed_at = dateutil.parser.parse(event.body['timestamp'])
+            model.is_closed = True
+        model.last_update = dateutil.parser.parse(event.body['timestamp'])
+
+    @classmethod
+    def handle_event(cls, backend, event):
+        repo = cls.get_or_create_by_external_id(backend, cls.get_external_id_from_body(event.body), PullRequestModel)
+        cls.apply_event_to_model(repo, event)
+        cls.save(backend, repo)
