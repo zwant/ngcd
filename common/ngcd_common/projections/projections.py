@@ -53,7 +53,9 @@ class RepositoryProjection(Projection):
             model.last_pusher = event.body['pusher']
             if not model.commits:
                 model.commits = []
-            model.commits.extend(event.body['commits'])
+            for commit in event.body['commits']:
+                if commit not in model.commits:
+                    model.commits.append(commit)
         elif event.type == 'RepositoryAdded':
             model.description = event.body['description']
             model.html_url = event.body['htmlUrl']
