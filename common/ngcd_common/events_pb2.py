@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='events.proto',
   package='events',
   syntax='proto3',
-  serialized_pb=_b('\n\x0c\x65vents.proto\x12\x06\x65vents\x1a\x1fgoogle/protobuf/timestamp.proto\"N\n\x0fPipelineStarted\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x84\x01\n\x10PipelineFinished\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x03 \x01(\x05\x12\x1e\n\x06result\x18\x04 \x01(\x0e\x32\x0e.events.Result\"j\n\x14PipelineStageStarted\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xa0\x01\n\x15PipelineStageFinished\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x04 \x01(\x05\x12\x1e\n\x06result\x18\x05 \x01(\x0e\x32\x0e.events.Result\"6\n\x07ScmUser\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"y\n\tScmCommit\x12\x0b\n\x03sha\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1f\n\x06\x61uthor\x18\x03 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\\\n\x0eRepoIdentifier\x12\x12\n\nshort_name\x18\x01 \x01(\t\x12\x11\n\tfull_name\x18\x02 \x01(\t\x12#\n\trepo_type\x18\x05 \x01(\x0e\x32\x10.events.RepoType\"\xdd\x01\n\nCodePushed\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x14\n\x0cnew_head_sha\x18\x02 \x01(\t\x12\x19\n\x11previous_head_sha\x18\x03 \x01(\t\x12\x1f\n\x06pusher\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12\"\n\x07\x63ommits\x18\x05 \x03(\x0b\x32\x11.events.ScmCommit\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xcb\x01\n\x0fRepositoryAdded\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x10\n\x08html_url\x18\x03 \x01(\t\x12\x0f\n\x07\x61pi_url\x18\x04 \x01(\t\x12%\n\x0cperformed_by\x18\x05 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x95\x01\n\x11RepositoryRemoved\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12%\n\x0cperformed_by\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x8d\x02\n\x11PullRequestOpened\x12\n\n\x02id\x18\x01 \x01(\t\x12\'\n\x07pr_repo\x18\x02 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x10\n\x08head_sha\x18\x03 \x01(\t\x12\"\n\topened_by\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12\x10\n\x08\x62\x61se_sha\x18\x05 \x01(\t\x12)\n\tbase_repo\x18\x06 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x10\n\x08html_url\x18\x07 \x01(\t\x12\x0f\n\x07\x61pi_url\x18\x08 \x01(\t\x12-\n\ttimestamp\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x9b\x01\n\x11PullRequestClosed\x12\n\n\x02id\x18\x01 \x01(\t\x12\'\n\x07pr_repo\x18\x02 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\"\n\tclosed_by\x18\x03 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xcd\x01\n\x13\x43odeReviewCompleted\x12%\n\x0c\x63ompleted_by\x18\x01 \x01(\x0b\x32\x0f.events.ScmUser\x12\r\n\x05pr_id\x18\x02 \x01(\t\x12\'\n\x07pr_repo\x18\x03 \x01(\x0b\x32\x16.events.RepoIdentifier\x12(\n\x06result\x18\x04 \x01(\x0e\x32\x18.events.CodeReviewResult\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x81\x01\n\x11\x41rtifactPublished\x12\x16\n\x0e\x63omponent_name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x14\n\x0c\x64ownload_url\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*/\n\x06Result\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0b\n\x07\x41\x42ORTED\x10\x02*p\n\x08RepoType\x12\x11\n\rPUBLIC_GITHUB\x10\x00\x12\x15\n\x11GITHUB_ENTERPRISE\x10\x01\x12\n\n\x06GITLAB\x10\x02\x12\x14\n\x10PUBLIC_BITBUCKET\x10\x03\x12\x18\n\x14\x42ITBUCKET_ENTERPRISE\x10\x04*,\n\x10\x43odeReviewResult\x12\x0c\n\x08\x41\x43\x43\x45PTED\x10\x00\x12\n\n\x06\x44\x45NIED\x10\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0c\x65vents.proto\x12\x06\x65vents\x1a\x1fgoogle/protobuf/timestamp.proto\"N\n\x0fPipelineStarted\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x84\x01\n\x10PipelineFinished\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12-\n\ttimestamp\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x03 \x01(\x05\x12\x1e\n\x06result\x18\x04 \x01(\x0e\x32\x0e.events.Result\"j\n\x14PipelineStageStarted\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xa0\x01\n\x15PipelineStageFinished\x12\x15\n\rpipeline_uuid\x18\x01 \x01(\t\x12\x0c\n\x04uuid\x18\x02 \x01(\t\x12-\n\ttimestamp\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0b\x64uration_ms\x18\x04 \x01(\x05\x12\x1e\n\x06result\x18\x05 \x01(\x0e\x32\x0e.events.Result\"6\n\x07ScmUser\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08username\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"y\n\tScmCommit\x12\x0b\n\x03sha\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1f\n\x06\x61uthor\x18\x03 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\\\n\x0eRepoIdentifier\x12\x12\n\nshort_name\x18\x01 \x01(\t\x12\x11\n\tfull_name\x18\x02 \x01(\t\x12#\n\trepo_type\x18\x05 \x01(\x0e\x32\x10.events.RepoType\"\xf4\x01\n\nCodePushed\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x14\n\x0cnew_head_sha\x18\x02 \x01(\t\x12\x19\n\x11previous_head_sha\x18\x03 \x01(\t\x12\x15\n\rtarget_branch\x18\x04 \x01(\t\x12\x1f\n\x06pusher\x18\x05 \x01(\x0b\x32\x0f.events.ScmUser\x12\"\n\x07\x63ommits\x18\x06 \x03(\x0b\x32\x11.events.ScmCommit\x12-\n\ttimestamp\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xcb\x01\n\x0fRepositoryAdded\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12\x10\n\x08html_url\x18\x03 \x01(\t\x12\x0f\n\x07\x61pi_url\x18\x04 \x01(\t\x12%\n\x0cperformed_by\x18\x05 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x95\x01\n\x11RepositoryRemoved\x12*\n\nidentifier\x18\x01 \x01(\x0b\x32\x16.events.RepoIdentifier\x12%\n\x0cperformed_by\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x8d\x02\n\x11PullRequestOpened\x12\n\n\x02id\x18\x01 \x01(\t\x12\'\n\x07pr_repo\x18\x02 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x10\n\x08head_sha\x18\x03 \x01(\t\x12\"\n\topened_by\x18\x04 \x01(\x0b\x32\x0f.events.ScmUser\x12\x10\n\x08\x62\x61se_sha\x18\x05 \x01(\t\x12)\n\tbase_repo\x18\x06 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\x10\n\x08html_url\x18\x07 \x01(\t\x12\x0f\n\x07\x61pi_url\x18\x08 \x01(\t\x12-\n\ttimestamp\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x9b\x01\n\x11PullRequestClosed\x12\n\n\x02id\x18\x01 \x01(\t\x12\'\n\x07pr_repo\x18\x02 \x01(\x0b\x32\x16.events.RepoIdentifier\x12\"\n\tclosed_by\x18\x03 \x01(\x0b\x32\x0f.events.ScmUser\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\xcd\x01\n\x13\x43odeReviewCompleted\x12%\n\x0c\x63ompleted_by\x18\x01 \x01(\x0b\x32\x0f.events.ScmUser\x12\r\n\x05pr_id\x18\x02 \x01(\t\x12\'\n\x07pr_repo\x18\x03 \x01(\x0b\x32\x16.events.RepoIdentifier\x12(\n\x06result\x18\x04 \x01(\x0e\x32\x18.events.CodeReviewResult\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x81\x01\n\x11\x41rtifactPublished\x12\x16\n\x0e\x63omponent_name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x14\n\x0c\x64ownload_url\x18\x03 \x01(\t\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp*/\n\x06Result\x12\x0b\n\x07SUCCESS\x10\x00\x12\x0b\n\x07\x46\x41ILURE\x10\x01\x12\x0b\n\x07\x41\x42ORTED\x10\x02*p\n\x08RepoType\x12\x11\n\rPUBLIC_GITHUB\x10\x00\x12\x15\n\x11GITHUB_ENTERPRISE\x10\x01\x12\n\n\x06GITLAB\x10\x02\x12\x14\n\x10PUBLIC_BITBUCKET\x10\x03\x12\x18\n\x14\x42ITBUCKET_ENTERPRISE\x10\x04*,\n\x10\x43odeReviewResult\x12\x0c\n\x08\x41\x43\x43\x45PTED\x10\x00\x12\n\n\x06\x44\x45NIED\x10\x01\x62\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -46,8 +46,8 @@ _RESULT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2168,
-  serialized_end=2215,
+  serialized_start=2191,
+  serialized_end=2238,
 )
 _sym_db.RegisterEnumDescriptor(_RESULT)
 
@@ -81,8 +81,8 @@ _REPOTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2217,
-  serialized_end=2329,
+  serialized_start=2240,
+  serialized_end=2352,
 )
 _sym_db.RegisterEnumDescriptor(_REPOTYPE)
 
@@ -104,8 +104,8 @@ _CODEREVIEWRESULT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2331,
-  serialized_end=2375,
+  serialized_start=2354,
+  serialized_end=2398,
 )
 _sym_db.RegisterEnumDescriptor(_CODEREVIEWRESULT)
 
@@ -488,22 +488,29 @@ _CODEPUSHED = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='pusher', full_name='events.CodePushed.pusher', index=3,
-      number=4, type=11, cpp_type=10, label=1,
+      name='target_branch', full_name='events.CodePushed.target_branch', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='pusher', full_name='events.CodePushed.pusher', index=4,
+      number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='commits', full_name='events.CodePushed.commits', index=4,
-      number=5, type=11, cpp_type=10, label=3,
+      name='commits', full_name='events.CodePushed.commits', index=5,
+      number=6, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='timestamp', full_name='events.CodePushed.timestamp', index=5,
-      number=6, type=11, cpp_type=10, label=1,
+      name='timestamp', full_name='events.CodePushed.timestamp', index=6,
+      number=7, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -521,7 +528,7 @@ _CODEPUSHED = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=817,
-  serialized_end=1038,
+  serialized_end=1061,
 )
 
 
@@ -586,8 +593,8 @@ _REPOSITORYADDED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1041,
-  serialized_end=1244,
+  serialized_start=1064,
+  serialized_end=1267,
 )
 
 
@@ -631,8 +638,8 @@ _REPOSITORYREMOVED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1247,
-  serialized_end=1396,
+  serialized_start=1270,
+  serialized_end=1419,
 )
 
 
@@ -718,8 +725,8 @@ _PULLREQUESTOPENED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1399,
-  serialized_end=1668,
+  serialized_start=1422,
+  serialized_end=1691,
 )
 
 
@@ -770,8 +777,8 @@ _PULLREQUESTCLOSED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1671,
-  serialized_end=1826,
+  serialized_start=1694,
+  serialized_end=1849,
 )
 
 
@@ -829,8 +836,8 @@ _CODEREVIEWCOMPLETED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1829,
-  serialized_end=2034,
+  serialized_start=1852,
+  serialized_end=2057,
 )
 
 
@@ -881,8 +888,8 @@ _ARTIFACTPUBLISHED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2037,
-  serialized_end=2166,
+  serialized_start=2060,
+  serialized_end=2189,
 )
 
 _PIPELINESTARTED.fields_by_name['timestamp'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP

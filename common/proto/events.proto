@@ -73,9 +73,10 @@ message CodePushed {
     RepoIdentifier identifier = 1;
     string new_head_sha = 2;
     string previous_head_sha = 3;
-    ScmUser pusher = 4;
-    repeated ScmCommit commits = 5;
-    google.protobuf.Timestamp timestamp = 6;
+    string target_branch = 4;
+    ScmUser pusher = 5;
+    repeated ScmCommit commits = 6;
+    google.protobuf.Timestamp timestamp = 7;
 }
 
 message RepositoryAdded {

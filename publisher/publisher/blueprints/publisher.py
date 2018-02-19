@@ -148,6 +148,7 @@ def codepushed():
                                     full_name=payload['identifier']['full_name'],
                                     repo_type=payload['identifier']['repo_type']
                                   ),
+                                  target_branch=payload['target_branch'],
                                   new_head_sha=payload['new_head_sha'],
                                   previous_head_sha=payload['previous_head_sha'],
                                   pusher=user,
@@ -164,7 +165,6 @@ def repo_added():
     performed_by = events_pb2.ScmUser(id=payload['performed_by']['id'],
                               username=payload['performed_by']['user_name'],
                               email=payload['performed_by']['email'])
-
     rabbitmq = get_rabbitmq()
     ts = timestamp_from_json_string(payload['timestamp'])
     event = events_pb2.RepositoryAdded(identifier=events_pb2.RepoIdentifier(
@@ -211,7 +211,6 @@ def pull_request_opened():
                               email=payload['opened_by']['email'])
 
     rabbitmq = get_rabbitmq()
-    print(payload['timestamp'])
     ts = timestamp_from_json_string(payload['timestamp'])
     event = events_pb2.PullRequestOpened(id=payload['id'],
                                          pr_repo=events_pb2.RepoIdentifier(
