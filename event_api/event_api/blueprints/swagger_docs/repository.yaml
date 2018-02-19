@@ -3,8 +3,8 @@ Get a repository
 tags:
   - repositories
 parameters:
-  - in: path
-    name: repo_name
+  - in: query
+    name: id
     type: string
     required: true
     description: The short-name of the repository to get

@@ -47,16 +47,17 @@ def pipeline_stage(pipeline_external_id=None, external_id=None):
         abort(404)
     return jsonify(stage.as_dict())
 
-@bp.route("/repository/<repo_name>/")
-def repository(repo_name=None):
+@bp.route("/repository/")
+def repository():
     """
     swagger_from_file: event_api/blueprints/swagger_docs/repository.yaml
 
     """
+    repo_id = request.args.get('id')
     projector = get_projector(current_app)
     projector.process_events()
     repository = projector.backend.get_one_by_filter(model.Repository,
-                                                     {"short_name": repo_name})
+                                                     {"full_name": repo_id})
     if not repository:
         abort(404)
     return jsonify(repository.as_dict())
