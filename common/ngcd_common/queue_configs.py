@@ -12,7 +12,10 @@ HEADER_CLASS_MAP = {
     'CodePushed': events_pb2.CodePushed,
     'ArtifactPublished': events_pb2.ArtifactPublished,
     'RepositoryAdded': events_pb2.RepositoryAdded,
-    'RepositoryRemoved': events_pb2.RepositoryRemoved
+    'RepositoryRemoved': events_pb2.RepositoryRemoved,
+    'PullRequestOpened': events_pb2.PullRequestOpened,
+    'PullRequestClosed': events_pb2.PullRequestClosed,
+    'CodeReviewCompleted': events_pb2.CodeReviewCompleted,
 }
 
 EXTERNAL_QUEUES = {
@@ -23,7 +26,10 @@ EXTERNAL_QUEUES = {
     'scm.repo.push': Queue('external.scm.repo.push', exchange=EXTERNAL_EXCHANGE, routing_key='scm.repo.push'),
     'scm.repo.create': Queue('external.scm.repo.create', exchange=EXTERNAL_EXCHANGE, routing_key='scm.repo.create'),
     'scm.repo.remove': Queue('external.scm.repo.remove', exchange=EXTERNAL_EXCHANGE, routing_key='scm.repo.remove'),
-    'scm.artifact.publish': Queue('external.scm.artifact.publish', exchange=EXTERNAL_EXCHANGE, routing_key='artifact.publish')
+    'scm.pull_request.open': Queue('external.scm.pull_request.open', exchange=EXTERNAL_EXCHANGE, routing_key='scm.pull_request.open'),
+    'scm.pull_request.close': Queue('external.scm.pull_request.close', exchange=EXTERNAL_EXCHANGE, routing_key='scm.pull_request.close'),
+    'scm.code_review.complete': Queue('external.scm.code_review.complete', exchange=EXTERNAL_EXCHANGE, routing_key='scm.code_review.complete'),
+    'artifact.publish': Queue('external.artifact.publish', exchange=EXTERNAL_EXCHANGE, routing_key='artifact.publish')
 }
 
 INTERNAL_QUEUES = {
@@ -34,7 +40,10 @@ INTERNAL_QUEUES = {
     'scm.repo.push': Queue('internal.scm.repo.push', exchange=INTERNAL_EXCHANGE, routing_key='scm.repo.push'),
     'scm.repo.create': Queue('internal.scm.repo.create', exchange=INTERNAL_EXCHANGE, routing_key='scm.repo.create'),
     'scm.repo.remove': Queue('internal.scm.repo.remove', exchange=INTERNAL_EXCHANGE, routing_key='scm.repo.remove'),
-    'scm.artifact.publish': Queue('internal.scm.artifact.publish', exchange=INTERNAL_EXCHANGE, routing_key='artifact.publish')
+    'scm.pull_request.open': Queue('internal.scm.pull_request.open', exchange=INTERNAL_EXCHANGE, routing_key='scm.pull_request.open'),
+    'scm.pull_request.close': Queue('internal.scm.pull_request.close', exchange=INTERNAL_EXCHANGE, routing_key='scm.pull_request.close'),
+    'scm.code_review.complete': Queue('internal.scm.code_review.complete', exchange=INTERNAL_EXCHANGE, routing_key='scm.code_review.complete'),
+    'artifact.publish': Queue('internal.artifact.publish', exchange=INTERNAL_EXCHANGE, routing_key='artifact.publish')
 }
 
 def handle_headers(headers_map):

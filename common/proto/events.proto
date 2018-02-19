@@ -93,6 +93,38 @@ message RepositoryRemoved {
     google.protobuf.Timestamp timestamp = 6;
 }
 
+message PullRequestOpened {
+    string id = 1;
+    RepoIdentifier pr_repo = 2;
+    string head_sha = 3;
+    ScmUser opened_by = 4;
+    string base_sha = 5;
+    RepoIdentifier base_repo = 6;
+    string html_url = 7;
+    string api_url = 8;
+    google.protobuf.Timestamp timestamp = 9;
+}
+
+message PullRequestClosed {
+    string id = 1;
+    RepoIdentifier pr_repo = 2;
+    ScmUser closed_by = 3;
+    google.protobuf.Timestamp timestamp = 4;
+}
+
+enum CodeReviewResult {
+    ACCEPTED = 0;
+    DENIED = 1;
+}
+
+message CodeReviewCompleted {
+    ScmUser completed_by = 1;
+    string pr_id = 2;
+    RepoIdentifier pr_repo = 3;
+    CodeReviewResult result = 4;
+    google.protobuf.Timestamp timestamp = 5;
+}
+
 ////////////
 // Artifacts
 ////////////
@@ -104,6 +136,4 @@ message ArtifactPublished {
 }
 // DeployStarted
 // DeployFinished
-// PullRequestOpened
-// PullRequestClosed
 // CodeReviewAccepted

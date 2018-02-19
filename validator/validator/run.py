@@ -26,10 +26,16 @@ ALL_QUEUE_CONFIGS = [
      (queue_configs.INTERNAL_QUEUES['scm.repo.create'], events_pb2.RepositoryAdded)),
     ((queue_configs.EXTERNAL_QUEUES['scm.repo.remove'], events_pb2.RepositoryRemoved),
      (queue_configs.INTERNAL_QUEUES['scm.repo.remove'], events_pb2.RepositoryRemoved)),
+    ((queue_configs.EXTERNAL_QUEUES['scm.pull_request.open'], events_pb2.PullRequestOpened),
+     (queue_configs.INTERNAL_QUEUES['scm.pull_request.open'], events_pb2.PullRequestOpened)),
+    ((queue_configs.EXTERNAL_QUEUES['scm.pull_request.close'], events_pb2.PullRequestClosed),
+     (queue_configs.INTERNAL_QUEUES['scm.pull_request.close'], events_pb2.PullRequestClosed)),
+    ((queue_configs.EXTERNAL_QUEUES['scm.code_review.complete'], events_pb2.CodeReviewCompleted),
+     (queue_configs.INTERNAL_QUEUES['scm.code_review.complete'], events_pb2.CodeReviewCompleted)),
 
      # Artifacts
-     ((queue_configs.EXTERNAL_QUEUES['scm.artifact.publish'], events_pb2.ArtifactPublished),
-      (queue_configs.INTERNAL_QUEUES['scm.artifact.publish'], events_pb2.ArtifactPublished)),
+     ((queue_configs.EXTERNAL_QUEUES['artifact.publish'], events_pb2.ArtifactPublished),
+      (queue_configs.INTERNAL_QUEUES['artifact.publish'], events_pb2.ArtifactPublished)),
 
 ]
 

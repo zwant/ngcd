@@ -202,3 +202,80 @@ def repo_removed():
     queue = queue_configs.EXTERNAL_QUEUES['scm.repo.remove']
     publish_to_queue(rabbitmq, event, queue)
     return " [x] Sent RepoRemoved"
+
+@bp.route("/pull_request/open/", methods=['POST'])
+def pull_request_opened():
+    payload = request.get_json(force=True)
+    opened_by = events_pb2.ScmUser(id=payload['opened_by']['id'],
+                              username=payload['opened_by']['user_name'],
+                              email=payload['opened_by']['email'])
+
+    rabbitmq = get_rabbitmq()
+    print(payload['timestamp'])
+    ts = timestamp_from_json_string(payload['timestamp'])
+    event = events_pb2.PullRequestOpened(id=payload['id'],
+                                         pr_repo=events_pb2.RepoIdentifier(
+                                             short_name=payload['pr_repo']['short_name'],
+                                             full_name=payload['pr_repo']['full_name'],
+                                             repo_type=payload['pr_repo']['repo_type']
+                                         ),
+                                         head_sha=payload['head_sha'],
+                                         opened_by=opened_by,
+                                         base_sha=payload['base_sha'],
+                                         base_repo=events_pb2.RepoIdentifier(
+                                             short_name=payload['base_repo']['short_name'],
+                                             full_name=payload['base_repo']['full_name'],
+                                             repo_type=payload['base_repo']['repo_type']
+                                         ),
+                                         html_url=payload['html_url'],
+                                         api_url=payload['api_url'],
+                                         timestamp=ts)
+
+    queue = queue_configs.EXTERNAL_QUEUES['scm.pull_request.open']
+    publish_to_queue(rabbitmq, event, queue)
+    return " [x] Sent PullRequestOpened"
+
+@bp.route("/pull_request/close/", methods=['POST'])
+def pull_request_closed():
+    payload = request.get_json(force=True)
+    closed_by = events_pb2.ScmUser(id=payload['closed_by']['id'],
+                              username=payload['closed_by']['user_name'],
+                              email=payload['closed_by']['email'])
+
+    rabbitmq = get_rabbitmq()
+    ts = timestamp_from_json_string(payload['timestamp'])
+    event = events_pb2.PullRequestClosed(id=payload['id'],
+                                         pr_repo=events_pb2.RepoIdentifier(
+                                             short_name=payload['pr_repo']['short_name'],
+                                             full_name=payload['pr_repo']['full_name'],
+                                             repo_type=payload['pr_repo']['repo_type']
+                                         ),
+                                         closed_by=closed_by,
+                                         timestamp=ts)
+
+    queue = queue_configs.EXTERNAL_QUEUES['scm.pull_request.close']
+    publish_to_queue(rabbitmq, event, queue)
+    return " [x] Sent PullRequestClosed"
+
+@bp.route("/code_review_completed/", methods=['POST'])
+def code_review_completed():
+    payload = request.get_json(force=True)
+    completed_by = events_pb2.ScmUser(id=payload['completed_by']['id'],
+                              username=payload['completed_by']['user_name'],
+                              email=payload['completed_by']['email'])
+
+    rabbitmq = get_rabbitmq()
+    ts = timestamp_from_json_string(payload['timestamp'])
+    event = events_pb2.CodeReviewCompleted(pr_id=payload['id'],
+                                           pr_repo=events_pb2.RepoIdentifier(
+                                               short_name=payload['pr_repo']['short_name'],
+                                               full_name=payload['pr_repo']['full_name'],
+                                               repo_type=payload['pr_repo']['repo_type']
+                                           ),
+                                           result=events_pb2.CodeReviewResult.Value(payload['result']),
+                                           completed_by=completed_by,
+                                           timestamp=ts)
+
+    queue = queue_configs.EXTERNAL_QUEUES['scm.code_review.complete']
+    publish_to_queue(rabbitmq, event, queue)
+    return " [x] Sent CodeReviewCompleted"

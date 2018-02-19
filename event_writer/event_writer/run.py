@@ -71,14 +71,14 @@ def main():
                                              autoflush=False,
                                              bind=db_engine))
 
-    model.Base.query = db_session.query_property()
+    model.EventBase.query = db_session.query_property()
     if config.CLEAN_DB == True:
         logger.info('Cleaning DB')
-        model.Base.metadata.drop_all(db_engine)
+        model.EventBase.metadata.drop_all(db_engine)
     else:
         logger.info('Not cleaning DB')
 
-    model.Base.metadata.create_all(db_engine)
+    model.EventBase.metadata.create_all(db_engine)
 
     with Connection('amqp://guest:guest@{}//'.format(config.RABBITMQ_HOST)) as conn:
         logger.info('[*] Connected to RabbitMQ at [%s]. Waiting for data. To exit press CTRL+C', config.RABBITMQ_HOST)
