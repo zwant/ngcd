@@ -1,4 +1,7 @@
 class ProjectionBackend(object):
+    def get_all(self, model):
+        raise NotImplementedError("get_all needs to be implemented in inheriting class!")
+
     def get_by_external_id(self, external_id, model):
         raise NotImplementedError("get_by_external_id needs to be implemented in inheriting class!")
 
@@ -35,6 +38,9 @@ class InMemoryBackend(ProjectionBackend):
     def _get_next_id(self):
         self.last_id = self.last_id + 1
         return self.last_id
+
+    def get_all(self, model):
+        return self.data[model.__table__.name]
 
     def get_by_external_id(self, external_id, model):
         found = []
@@ -88,6 +94,9 @@ class InMemoryBackend(ProjectionBackend):
 class SQLAlchemyBackend(ProjectionBackend):
     def __init__(self, db_session):
         self.db_session = db_session
+
+    def get_all(self, model):
+        return model.query.all()
 
     def get_by_external_id(self, external_id, model):
         return self.get_by_filter(model, {'external_id': external_id})

@@ -32,6 +32,14 @@ def pipeline(external_id=None):
     return jsonify({"pipeline": pipeline.as_dict(),
                     "stages": [stage.as_dict() for stage in stages]})
 
+@bp.route("/pipeline/")
+def all_pipelines():
+    projector = get_projector(current_app)
+    projector.process_events()
+    pipelines = projector.backend.get_all(model.Pipeline)
+
+    return jsonify({"pipelines": [pipeline.as_dict() for pipeline in pipelines]})
+
 @bp.route("/pipeline_stage/<pipeline_external_id>/<external_id>/")
 def pipeline_stage(pipeline_external_id=None, external_id=None):
     """
@@ -47,6 +55,14 @@ def pipeline_stage(pipeline_external_id=None, external_id=None):
         abort(404)
     return jsonify(stage.as_dict())
 
+@bp.route("/pipeline_stage/")
+def all_pipeline_stages():
+    projector = get_projector(current_app)
+    projector.process_events()
+    pipeline_stages = projector.backend.get_all(model.PipelineStage)
+
+    return jsonify({"pipeline_stages": [pipeline_stage.as_dict() for pipeline_stage in pipeline_stages]})
+
 @bp.route("/repository/")
 def repository():
     """
@@ -56,11 +72,16 @@ def repository():
     repo_id = request.args.get('id')
     projector = get_projector(current_app)
     projector.process_events()
-    repository = projector.backend.get_one_by_filter(model.Repository,
-                                                     {"full_name": repo_id})
-    if not repository:
-        abort(404)
-    return jsonify(repository.as_dict())
+    if repo_id:
+        repository = projector.backend.get_one_by_filter(model.Repository,
+                                                         {"full_name": repo_id})
+        if not repository:
+            abort(404)
+        return jsonify(repository.as_dict())
+    else:
+        repositories = projector.backend.get_all(model.Repository)
+        return jsonify({"repositories": [repository.as_dict() for repository in repositories]})
+
 
 @bp.route("/commit/<sha>/")
 def commit(sha=None):
@@ -81,3 +102,11 @@ def pull_request(id=None):
     if not pr:
         abort(404)
     return jsonify(pr.as_dict())
+
+@bp.route("/pull_request/")
+def all_pull_requests():
+    projector = get_projector(current_app)
+    projector.process_events()
+    pull_requests = projector.backend.get_all(model.PullRequest)
+
+    return jsonify({"pull_requests": [pull_request.as_dict() for pull_request in pull_requests]})
