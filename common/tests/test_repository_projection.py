@@ -258,7 +258,7 @@ class TestRepositoryProjection(object):
             'newHeadSha': '3',
             'previousHeadSha': '2',
             'pusher': 'test-user',
-            'commits': [{"test_commit": "hej"}],
+            'commits': [{"test_commit2": "hej"}],
             'timestamp': '2017-02-02T15:25:43.511Z'
         }
 
@@ -299,7 +299,7 @@ class TestRepositoryProjection(object):
                                 head_sha='123',
                                 previous_head_sha='234',
                                 last_update='2017-02-02T12:25:43.511Z',
-                                commits=[{"test_commit": "hej"}])
+                                commits=[{"test_commit2": "hej"}])
         apply_events(RepositoryProjection.apply_event_to_model,
                      model,
                      [event1])
@@ -313,6 +313,35 @@ class TestRepositoryProjection(object):
         assert len(model.commits) == 2
         assert model.last_pusher == 'test-user'
         assert model.last_update == dateutil.parser.parse('2017-02-02T15:25:43.511Z')
+
+    def test_doesnt_apply_duplicate_commits(self):
+        event1 = Container()
+        event1.type = 'CodePushed'
+        event1.body = {
+            'identifier': {
+                'shortName': 'test-repo',
+                'fullName': 'test-org/test-repo',
+                'repoType': 'GITHUB_ENTERPRISE'
+            },
+            'newHeadSha': '2',
+            'previousHeadSha': '1',
+            'pusher': 'test-user',
+            'commits': [{"test_commit": "hej"}],
+            'timestamp': '2017-02-02T15:25:43.511Z'
+        }
+
+        model = RepositoryModel(external_id='test',
+                                short_name="hello",
+                                last_pusher='old-user',
+                                head_sha='123',
+                                previous_head_sha='234',
+                                last_update='2017-02-02T12:25:43.511Z',
+                                commits=[{"test_commit": "hej"}])
+        apply_events(RepositoryProjection.apply_event_to_model,
+                     model,
+                     [event1])
+
+        assert len(model.commits) == 1
 
     def doesnt_apply_unrelated_event(self):
         event = Container()

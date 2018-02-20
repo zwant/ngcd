@@ -22,6 +22,7 @@ class TestPullRequestProjection(object):
             'id': '1',
             'headSha': '23456',
             'baseSha': '12345',
+            'branch': 'feature/my-feature',
             'baseRepo': {
                 'shortName': 'test-repo',
                 'fullName': 'test-org/test-repo',
@@ -47,6 +48,7 @@ class TestPullRequestProjection(object):
         assert model.repo_external_id == 'test-org/test-repo'
         assert model.head_sha == '23456'
         assert model.base_sha == '12345'
+        assert model.branch == 'feature/my-feature'
         assert model.base_repo_external_id == 'test-org/test-repo'
         assert model.html_url == 'http://someurl'
         assert model.api_url == 'http://apiurl'
@@ -72,6 +74,7 @@ class TestPullRequestProjection(object):
             'id': '1',
             'headSha': '23456',
             'baseSha': '12345',
+            'branch': 'feature/my-feature',
             'baseRepo': {
                 'shortName': 'test-repo',
                 'fullName': 'test-org/test-repo',
@@ -114,6 +117,7 @@ class TestPullRequestProjection(object):
         assert model.repo_external_id == 'test-org/test-repo'
         assert model.head_sha == '23456'
         assert model.base_sha == '12345'
+        assert model.branch == 'feature/my-feature'
         assert model.base_repo_external_id == 'test-org/test-repo'
         assert model.html_url == 'http://someurl'
         assert model.api_url == 'http://apiurl'

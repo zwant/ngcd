@@ -221,6 +221,7 @@ def pull_request_opened():
                                          head_sha=payload['head_sha'],
                                          opened_by=opened_by,
                                          base_sha=payload['base_sha'],
+                                         branch=payload['branch'],
                                          base_repo=events_pb2.RepoIdentifier(
                                              short_name=payload['base_repo']['short_name'],
                                              full_name=payload['base_repo']['full_name'],

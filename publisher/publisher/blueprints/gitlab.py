@@ -87,6 +87,7 @@ def _handle_opened_merge_request(payload):
                                          head_sha=payload['object_attributes']['last_commit']['id'],
                                          opened_by=opened_by,
                                          base_sha=None,
+                                         branch=payload['object_attributes']['source_branch'],
                                          base_repo=events_pb2.RepoIdentifier(
                                              short_name=payload['object_attributes']['source']['name'],
                                              full_name=payload['object_attributes']['source']['path_with_namespace'],

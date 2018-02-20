@@ -155,6 +155,7 @@ class PullRequestProjection(Projection):
         if event.type == 'PullRequestOpened':
             model.head_sha = event.body['headSha']
             model.base_sha = event.body['baseSha']
+            model.branch = event.body['branch']
             model.base_repo_external_id = event.body['baseRepo']['fullName']
             model.html_url = event.body['htmlUrl']
             model.api_url = event.body['apiUrl']

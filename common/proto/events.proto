@@ -103,7 +103,8 @@ message PullRequestOpened {
     RepoIdentifier base_repo = 6;
     string html_url = 7;
     string api_url = 8;
-    google.protobuf.Timestamp timestamp = 9;
+    string branch = 9;
+    google.protobuf.Timestamp timestamp = 10;
 }
 
 message PullRequestClosed {

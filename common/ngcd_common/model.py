@@ -228,6 +228,7 @@ class PullRequest(ProjectionBase):
     repo_external_id = Column(String, nullable=False)
     head_sha = Column(String, nullable=False, index=True)
     base_sha = Column(String, nullable=False, index=True)
+    branch = Column(String, nullable=False, index=True)
     base_repo_external_id = Column(String, nullable=False, index=True)
     html_url = Column(String, nullable=True)
     api_url = Column(String, nullable=True)
@@ -244,6 +245,7 @@ class PullRequest(ProjectionBase):
                  repo_external_id=None,
                  head_sha=None,
                  base_sha=None,
+                 branch=None,
                  base_repo_external_id=None,
                  html_url=None,
                  api_url=None,
@@ -258,6 +260,7 @@ class PullRequest(ProjectionBase):
         self.repo_external_id = repo_external_id
         self.head_sha = head_sha
         self.base_sha = base_sha
+        self.branch = branch
         self.base_repo_external_id = base_repo_external_id
         self.html_url = html_url
         self.api_url = api_url
@@ -268,9 +271,10 @@ class PullRequest(ProjectionBase):
         self.last_update = last_update
 
     def __repr__(self):
-        return '<PullRequest {}> is_closed: {}, repo_external_id: {}, head_sha: {}, base_sha: {}, last_update: {}'.format(
+        return '<PullRequest {}> is_closed: {}, branch: {}, repo_external_id: {}, head_sha: {}, base_sha: {}, last_update: {}'.format(
         self.external_id,
         self.is_closed,
+        self.branch,
         self.repo_external_id,
         self.head_sha,
         self.base_sha,
@@ -284,6 +288,7 @@ class PullRequest(ProjectionBase):
             'repo_external_id': self.repo_external_id,
             'head_sha': self.head_sha,
             'base_sha': self.base_sha,
+            'branch': self.branch,
             'base_repo_external_id': self.base_repo_external_id,
             'html_url': self.html_url,
             'api_url': self.api_url,
