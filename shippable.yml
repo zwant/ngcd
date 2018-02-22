@@ -34,12 +34,12 @@ build:
     - pushd $COMMON_DIR
     - "pip install -r requirements-test.txt"
     - "pip install -e ."
-    - pytest --junitxml=$TEST_RESULTS_DIR/nosetests-common.xml --cov=ngcd_common --cov-branch --cov-report=xml:$CODE_COVERAGE_DIR/coverage-common.xml
+    - pytest --junitxml=$TEST_RESULTS_DIR/nosetests-common.xml --cov --cov-report=xml:$CODE_COVERAGE_DIR/coverage-common.xml
     - popd
     - pushd $VALIDATOR_DIR
     - "pip install -r requirements-test.txt"
     - "pip install -e ."
-    - pytest --junitxml=$TEST_RESULTS_DIR/nosetests-validator.xml --cov=validator --cov-branch --cov-report=xml:$CODE_COVERAGE_DIR/coverage-validator.xml
+    - pytest --junitxml=$TEST_RESULTS_DIR/nosetests-validator.xml --cov --cov-report=xml:$CODE_COVERAGE_DIR/coverage-validator.xml
     - popd
 
 integrations:
