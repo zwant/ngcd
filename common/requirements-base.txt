@@ -1,0 +1,6 @@
+SQLAlchemy==1.2.2
+kombu==4.1.0
+protobuf==3.5.1
+pytz==2017.3
+python-dateutil==2.6.1
+psycopg2==2.7.3.2

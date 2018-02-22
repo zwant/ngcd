@@ -23,11 +23,11 @@ build:
     - mkdir -p shippable/codecoverage
 
     # Install deps
-    - "pip install ./common"
-    - "pip install ./event_api"
-    - "pip install ./event_writer"
-    - "pip install ./publisher"
-    - "pip install ./validator"
+    - "pip install common/requirements-test.txt"
+    - "pip install event_api/requirements-test.txt"
+    - "pip install event_writer/requirements-test.txt"
+    - "pip install publisher/requirements-test.txt"
+    - "pip install validator/requirements-test.txt"
 
     #Run test and code coverage and output results to the right folder
     - pytest --junitxml=shippable/testresults/nosetests.xml

@@ -1,0 +1,5 @@
+Flask==0.12.2
+SQLAlchemy==1.2.2
+flask-swagger==0.2.13
+flask-swagger-ui==3.6.0
+Flask-Env==1.0.1

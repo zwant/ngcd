@@ -49,22 +49,22 @@ create-events:
 	http://localhost:5000/push/otherrepo/34567/
 
 install-common-deps:
-	source env/bin/activate; cd common; pip install -e .
+	source env/bin/activate; cd common; pip install -r requirements-test.txt
 
 install-validator-deps:
-	source env/bin/activate; cd validator; pip install -e .
+	source env/bin/activate; cd validator; pip install -r requirements-test.txt
 
 install-publisher-deps:
-	source env/bin/activate; cd publisher; pip install -e .
+	source env/bin/activate; cd publisher; pip install -r requirements-test.txt
 
 install-event-writer-deps:
-	source env/bin/activate; cd event_writer; pip install -e .
+	source env/bin/activate; cd event_writer; pip install -r requirements-test.txt
 
 install-metrics-writer-deps:
-	source env/bin/activate; cd metrics_writer; pip install -e .
+	source env/bin/activate; cd metrics_writer; pip install -r requirements-test.txt
 
 install-event-api-deps:
-	source env/bin/activate; cd event_api; pip install -e .
+	source env/bin/activate; cd event_api; pip install -r requirements-test.txt
 
 install-deps: install-common-deps install-validator-deps install-publisher-deps install-event-writer-deps install-event-api-deps
 

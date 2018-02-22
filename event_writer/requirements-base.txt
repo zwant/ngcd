@@ -1,0 +1,4 @@
+kombu==4.1.0
+SQLAlchemy-Utils==0.32.21
+SQLAlchemy==1.2.2
+psycopg2==2.7.3.2

@@ -1,0 +1,4 @@
+-r requirements-base.txt
+pytest==3.4.0
+pytest-mock
+pytest-cov
