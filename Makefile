@@ -61,7 +61,7 @@ install-event-writer-deps:
 	source env/bin/activate; cd event_writer; pip install -e .
 
 install-metrics-writer-deps:
-	source env/bin/activate; cd metrics_writer; pip install - e .
+	source env/bin/activate; cd metrics_writer; pip install -e .
 
 install-event-api-deps:
 	source env/bin/activate; cd event_api; pip install -e .

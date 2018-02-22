@@ -12,6 +12,7 @@ setup(
     ],
     tests_require=[
         'pytest',
-        'pytest-mock'
+        'pytest-mock',
+        'pytest-cov'
     ],
 )

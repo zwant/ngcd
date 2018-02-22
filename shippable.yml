@@ -1,0 +1,43 @@
+# Language setting http://docs.shippable.com/ci/languages/node/
+language: python
+
+python:
+  - 3.5
+
+# use this to control what branches get built.
+# http://docs.shippable.com/ci/advancedOptions/branches/
+branches:
+  only:
+    - master
+
+# using pre-defined build variables
+# full list http://docs.shippable.com/ci/advancedOptions/environmentVariables/
+env:
+  global:
+    - TEST_RESULTS_DIR=$SHIPPABLE_REPO_DIR/shippable/testresults
+    - CODE_COVERAGE_DIR=$SHIPPABLE_REPO_DIR/shippable/codecoverage
+build:
+  ci:
+    #Create folders for test and code coverage
+    - mkdir -p shippable/testresults
+    - mkdir -p shippable/codecoverage
+
+    # Install deps
+    - "pip install ./common"
+    - "pip install ./event_api"
+    - "pip install ./event_writer"
+    - "pip install ./publisher"
+    - "pip install ./validator"
+
+    #Run test and code coverage and output results to the right folder
+    - pytest --junitxml=shippable/testresults/nosetests.xml
+    - pytest --cov=modules --cov-report=xml:shippable/codecoverage/coverage.xml
+
+integrations:
+  notifications:
+    - integrationName: email
+      type: email
+      on_success: never
+      on_failure: never
+      on_cancel: never
+      on_pull_request: never
