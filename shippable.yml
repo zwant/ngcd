@@ -10,12 +10,20 @@ branches:
   only:
     - master
 
+services:
+    - postgres
+
 # using pre-defined build variables
 # full list http://docs.shippable.com/ci/advancedOptions/environmentVariables/
 env:
   global:
     - TEST_RESULTS_DIR=$SHIPPABLE_REPO_DIR/shippable/testresults
     - CODE_COVERAGE_DIR=$SHIPPABLE_REPO_DIR/shippable/codecoverage
+    - COMMON_DIR=$SHIPPABLE_REPO_DIR/common
+    - EVENT_API_DIR=$SHIPPABLE_REPO_DIR/event_api
+    - EVENT_WRITER_DIR=$SHIPPABLE_REPO_DIR/event_writer
+    - PUBLISHER_DIR=$SHIPPABLE_REPO_DIR/publisher
+    - VALIDATOR_DIR=$SHIPPABLE_REPO_DIR/validator
 build:
   ci:
     #Create folders for test and code coverage
@@ -23,15 +31,16 @@ build:
     - mkdir -p shippable/codecoverage
 
     # Install deps
-    - "pip install common/requirements-test.txt"
-    - "pip install event_api/requirements-test.txt"
-    - "pip install event_writer/requirements-test.txt"
-    - "pip install publisher/requirements-test.txt"
-    - "pip install validator/requirements-test.txt"
-
-    #Run test and code coverage and output results to the right folder
-    - pytest --junitxml=shippable/testresults/nosetests.xml
-    - pytest --cov=modules --cov-report=xml:shippable/codecoverage/coverage.xml
+    - pushd $COMMON_DIR
+    - "pip install -r requirements-test.txt"
+    - "pip install -e ."
+    - pytest --junitxml=$TEST_RESULTS_DIR/nosetests-common.xml --cov=ngcd_common --cov-branch --cov-report=xml:$CODE_COVERAGE_DIR/coverage-common.xml
+    - popd
+    - pushd $VALIDATOR_DIR
+    - "pip install -r requirements-test.txt"
+    - "pip install -e ."
+    - pytest --junitxml=$TEST_RESULTS_DIR/nosetests-validator.xml --cov=validator --cov-branch --cov-report=xml:$CODE_COVERAGE_DIR/coverage-validator.xml
+    - popd
 
 integrations:
   notifications:
