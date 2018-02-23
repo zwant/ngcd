@@ -3,8 +3,8 @@ import pytest
 
 from ngcd_common import model
 
-SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres@localhost:5432/test_db'
-CREATE_DB_URI = 'postgresql+psycopg2://postgres@localhost:5432/postgres'
+SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres@localhost:5433/test_db'
+CREATE_DB_URI = 'postgresql+psycopg2://postgres@localhost:5433/postgres'
 
 @pytest.fixture(scope='session')
 def db_engine(request):

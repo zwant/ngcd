@@ -1,4 +1,4 @@
-from ngcd_common.projections.backends import InMemoryBackend
+from ngcd_common.projections.projection_backends import InMemoryBackend
 from ngcd_common.model import Pipeline, PipelineStage
 
 class TestInMemoryBackend(object):

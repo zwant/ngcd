@@ -15,7 +15,7 @@ def create_app():
     setup_logging(app)
     if app.config['PROJECTION_STORE_BACKEND_TYPE'] == 'sqlalchemy':
         setup_db_tables(app)
-        
+
     register_blueprints(app)
     register_swagger_ui(app)
 
@@ -63,7 +63,7 @@ def get_projection_db_session(app):
 
 
 def get_projector_backend(app):
-    from ngcd_common.projections.backends import SQLAlchemyBackend, InMemoryBackend
+    from ngcd_common.projections.projection_backends import SQLAlchemyBackend, InMemoryBackend
 
     projector_backend = getattr(g, '_projector_backend', None)
     if projector_backend is None:
@@ -76,12 +76,28 @@ def get_projector_backend(app):
             raise NotImplementedError('No such projection store backend [{}]'.format(projection_store_config))
     return projector_backend
 
+def get_event_backend(app):
+    from ngcd_common.projections.event_backends import SQLAlchemyBackend
+
+    event_backend = getattr(g, '_event_backend', None)
+    if event_backend is None:
+        event_store_config = app.config['EVENT_STORE_BACKEND_TYPE']
+        if event_store_config == 'dummy':
+            event_backend = g._event_backend = None # TODO: Fixme.
+        elif event_store_config == 'sqlalchemy':
+            event_backend = g._event_backend = SQLAlchemyBackend(get_event_db_session(app))
+        else:
+            raise NotImplementedError('No such event store backend [{}]'.format(event_store_config))
+    return event_backend
+
 def get_projector(app):
     from ngcd_common.projections.projector import Projector
-    backend = get_projector_backend(app)
+
+    projector_backend = get_projector_backend(app)
+    event_backend = get_event_backend(app)
     projector = getattr(g, '_projector', None)
     if projector is None:
-        projector = g._projector = Projector(backend, get_event_db_session(app))
+        projector = g._projector = Projector(projector_backend, event_backend)
     return projector
 
 def setup_logging(app):

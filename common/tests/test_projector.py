@@ -1,5 +1,6 @@
 from ngcd_common.projections.projector import Projector
-from ngcd_common.projections.backends import SQLAlchemyBackend, InMemoryBackend
+from ngcd_common.projections.projection_backends import SQLAlchemyBackend, InMemoryBackend
+from ngcd_common.projections.event_backends import SQLAlchemyBackend as EventSQLAlchemyBackend
 from ngcd_common import model, events_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
 import dateutil.parser
@@ -23,7 +24,7 @@ def pytest_generate_tests(metafunc):
 sqlalchemy_backend = ('sqlalchemy', {'backend_name': 'sqlalchemy'})
 in_memory_backend = ('in_memory', {'backend_name': 'in_memory'})
 
-def get_backend(name, db_session):
+def get_projection_backend(name, db_session):
     if name == 'sqlalchemy':
         return SQLAlchemyBackend(db_session)
     else:
@@ -38,11 +39,11 @@ class TestProjector(object):
                                            timestamp=ts)
         model.Event.write_event(session, event)
 
-        backend = get_backend(backend_name, session)
-        projector = Projector(backend, session)
+        projection_backend = get_projection_backend(backend_name, session)
+        projector = Projector(projection_backend, EventSQLAlchemyBackend(session))
         projector.process_events()
 
-        pipeline = backend.get_one_by_external_id("test1", model.Pipeline)
+        pipeline = projection_backend.get_one_by_external_id("test1", model.Pipeline)
         assert pipeline is not None
         assert pipeline.external_id == 'test1'
         assert pipeline.currently_running == True
@@ -59,11 +60,11 @@ class TestProjector(object):
                                            result=events_pb2.SUCCESS)
         model.Event.write_event(session, event)
 
-        backend = get_backend(backend_name, session)
-        projector = Projector(backend, session)
+        projection_backend = get_projection_backend(backend_name, session)
+        projector = Projector(projection_backend, EventSQLAlchemyBackend(session))
         projector.process_events()
 
-        pipeline = backend.get_one_by_external_id("test1", model.Pipeline)
+        pipeline = projection_backend.get_one_by_external_id("test1", model.Pipeline)
         assert pipeline is not None
         assert pipeline.external_id == 'test1'
         assert pipeline.currently_running == False
@@ -120,11 +121,11 @@ class TestProjector(object):
                                                  result=events_pb2.ABORTED)
         model.Event.write_event(session, event)
 
-        backend = get_backend(backend_name, session)
-        projector = Projector(backend, session)
+        projection_backend = get_projection_backend(backend_name, session)
+        projector = Projector(projection_backend, EventSQLAlchemyBackend(session))
         projector.process_events()
 
-        pipeline_stage = backend.get_one_by_filter(model.PipelineStage, {"pipeline_id": "test1",
+        pipeline_stage = projection_backend.get_one_by_filter(model.PipelineStage, {"pipeline_id": "test1",
                                                                      "external_id": "stage1"})
         assert pipeline_stage is not None
         assert pipeline_stage.external_id == 'stage1'

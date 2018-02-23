@@ -24,11 +24,11 @@ def pipeline(external_id=None):
     """
     projector = get_projector(current_app)
     projector.process_events()
-    pipeline = projector.backend.get_one_by_external_id(external_id, model.Pipeline)
+    pipeline = projector.projection_backend.get_one_by_external_id(external_id, model.Pipeline)
     if not pipeline:
         abort(404)
 
-    stages = projector.backend.get_by_filter(model.PipelineStage, {"pipeline_id": pipeline.external_id})
+    stages = projector.projection_backend.get_by_filter(model.PipelineStage, {"pipeline_id": pipeline.external_id})
     return jsonify({"pipeline": pipeline.as_dict(),
                     "stages": [stage.as_dict() for stage in stages]})
 
@@ -36,7 +36,7 @@ def pipeline(external_id=None):
 def all_pipelines():
     projector = get_projector(current_app)
     projector.process_events()
-    pipelines = projector.backend.get_all(model.Pipeline)
+    pipelines = projector.projection_backend.get_all(model.Pipeline)
 
     return jsonify({"pipelines": [pipeline.as_dict() for pipeline in pipelines]})
 
@@ -48,7 +48,7 @@ def pipeline_stage(pipeline_external_id=None, external_id=None):
     """
     projector = get_projector(current_app)
     projector.process_events()
-    stage = projector.backend.get_one_by_filter(model.PipelineStage,
+    stage = projector.projection_backend.get_one_by_filter(model.PipelineStage,
                                                 {"pipeline_id": pipeline_external_id,
                                                  "external_id": external_id})
     if not stage:
@@ -59,7 +59,7 @@ def pipeline_stage(pipeline_external_id=None, external_id=None):
 def all_pipeline_stages():
     projector = get_projector(current_app)
     projector.process_events()
-    pipeline_stages = projector.backend.get_all(model.PipelineStage)
+    pipeline_stages = projector.projection_backend.get_all(model.PipelineStage)
 
     return jsonify({"pipeline_stages": [pipeline_stage.as_dict() for pipeline_stage in pipeline_stages]})
 
@@ -73,13 +73,13 @@ def repository():
     projector = get_projector(current_app)
     projector.process_events()
     if repo_id:
-        repository = projector.backend.get_one_by_filter(model.Repository,
+        repository = projector.projection_backend.get_one_by_filter(model.Repository,
                                                          {"full_name": repo_id})
         if not repository:
             abort(404)
         return jsonify(repository.as_dict())
     else:
-        repositories = projector.backend.get_all(model.Repository)
+        repositories = projector.projection_backend.get_all(model.Repository)
         return jsonify({"repositories": [repository.as_dict() for repository in repositories]})
 
 
@@ -98,7 +98,7 @@ def pull_request(id=None):
     external_id = '{}/{}'.format(repo_id, id)
     projector = get_projector(current_app)
     projector.process_events()
-    pr = projector.backend.get_one_by_external_id(external_id, model.PullRequest)
+    pr = projector.projection_backend.get_one_by_external_id(external_id, model.PullRequest)
     if not pr:
         abort(404)
     return jsonify(pr.as_dict())
@@ -107,6 +107,6 @@ def pull_request(id=None):
 def all_pull_requests():
     projector = get_projector(current_app)
     projector.process_events()
-    pull_requests = projector.backend.get_all(model.PullRequest)
+    pull_requests = projector.projection_backend.get_all(model.PullRequest)
 
     return jsonify({"pull_requests": [pull_request.as_dict() for pull_request in pull_requests]})
