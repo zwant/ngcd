@@ -77,13 +77,13 @@ def get_projector_backend(app):
     return projector_backend
 
 def get_event_backend(app):
-    from ngcd_common.projections.event_backends import SQLAlchemyBackend
+    from ngcd_common.projections.event_backends import SQLAlchemyBackend, DummyBackend
 
     event_backend = getattr(g, '_event_backend', None)
     if event_backend is None:
         event_store_config = app.config['EVENT_STORE_BACKEND_TYPE']
         if event_store_config == 'dummy':
-            event_backend = g._event_backend = None # TODO: Fixme.
+            event_backend = g._event_backend = DummyBackend()
         elif event_store_config == 'sqlalchemy':
             event_backend = g._event_backend = SQLAlchemyBackend(get_event_db_session(app))
         else:

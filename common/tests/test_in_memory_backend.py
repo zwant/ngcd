@@ -3,15 +3,15 @@ from ngcd_common.model import Pipeline, PipelineStage
 
 class TestInMemoryBackend(object):
     def setup_method(self, method):
-        self.backend = InMemoryBackend()
+        self.backend = InMemoryBackend(empty=True)
 
     def test_save_one(self):
         model = Pipeline(id=1, external_id="1")
         self.backend.save(model)
 
-        assert len(self.backend.data) == 1
-        assert 'pipelines' in self.backend.data
-        pipelines_stored = self.backend.data['pipelines']
+        assert len(self.backend._get_data()) == 1
+        assert 'pipelines' in self.backend._get_data()
+        pipelines_stored = self.backend._get_data()['pipelines']
         assert len(pipelines_stored) == 1
         assert pipelines_stored[0].external_id == "1"
 
@@ -21,9 +21,9 @@ class TestInMemoryBackend(object):
         model = Pipeline(id=2, external_id="2")
         self.backend.save(model)
 
-        assert len(self.backend.data) == 1
-        assert 'pipelines' in self.backend.data
-        pipelines_stored = self.backend.data['pipelines']
+        assert len(self.backend._get_data()) == 1
+        assert 'pipelines' in self.backend._get_data()
+        pipelines_stored = self.backend._get_data()['pipelines']
         assert len(pipelines_stored) == 2
         assert pipelines_stored[0].external_id == "1"
         assert pipelines_stored[1].external_id == "2"
@@ -37,20 +37,22 @@ class TestInMemoryBackend(object):
         self.backend.save(model3)
 
         pipeline1 = self.backend.get_one_by_external_id('1', Pipeline)
-        assert pipeline1 == model1
+        assert pipeline1.external_id == model1.external_id
 
         pipeline2 = self.backend.get_one_by_external_id('2', Pipeline)
-        assert pipeline2 == model2
+        assert pipeline2.external_id == model2.external_id
 
         pipeline_stage = self.backend.get_one_by_external_id('1', PipelineStage)
-        assert pipeline_stage == model3
+        assert pipeline_stage.external_id == model3.external_id
 
     def test_get_or_create_by_external_id(self):
         model1 = Pipeline(id=1, external_id="1")
         self.backend.save(model1)
 
         pipeline1 = self.backend.get_or_create_by_external_id('1', Pipeline)
-        assert pipeline1 == model1
+        assert pipeline1 is not None
+        assert pipeline1.external_id == '1'
+        assert pipeline1.result is None
 
         pipeline2 = self.backend.get_or_create_by_external_id('2', Pipeline)
         assert pipeline2 is not None
@@ -67,7 +69,8 @@ class TestInMemoryBackend(object):
 
         pipeline1 = self.backend.get_one_by_filter(Pipeline, {'external_id': '1',
                                                           'result':'SUCCESS'})
-        assert pipeline1 == model1
+        assert pipeline1.external_id == '1'
+        assert pipeline1.result == 'SUCCESS'
 
     def test_get_all_by_filter(self):
         model1 = Pipeline(id=1, external_id="1", result='SUCCESS')

@@ -4,3 +4,4 @@ protobuf==3.5.1
 pytz==2017.3
 python-dateutil==2.6.1
 psycopg2==2.7.3.2
+Faker==0.8.11

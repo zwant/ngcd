@@ -12,10 +12,12 @@ class Configuration(metaclass=MetaFlaskEnv):
     # inmemory
     # sqlalchemy
     PROJECTION_STORE_BACKEND_TYPE = 'sqlalchemy'
+    #PROJECTION_STORE_BACKEND_TYPE = 'inmemory'
     # Valid values for EVENT_STORE_BACKEND_TYPE:
     # dummy - will return fake data for testing
     # sqlalchemy
-    EVENT_STORE_BACKEND_TYPE = 'sqlalchemy'
+    #EVENT_STORE_BACKEND_TYPE = 'sqlalchemy'
+    EVENT_STORE_BACKEND_TYPE = 'dummy'
     EVENT_SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres@localhost:5433/event_api'
     CLEAN_PROJECTION_DB = True
     LOGCONFIG = 'event_api/logging.yaml'

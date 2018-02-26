@@ -28,7 +28,7 @@ def get_projection_backend(name, db_session):
     if name == 'sqlalchemy':
         return SQLAlchemyBackend(db_session)
     else:
-        return InMemoryBackend()
+        return InMemoryBackend(empty=True)
 
 class TestProjector(object):
     backends = [sqlalchemy_backend, in_memory_backend]
@@ -42,7 +42,7 @@ class TestProjector(object):
         projection_backend = get_projection_backend(backend_name, session)
         projector = Projector(projection_backend, EventSQLAlchemyBackend(session))
         projector.process_events()
-
+        print(projection_backend.get_all(model.Pipeline))
         pipeline = projection_backend.get_one_by_external_id("test1", model.Pipeline)
         assert pipeline is not None
         assert pipeline.external_id == 'test1'

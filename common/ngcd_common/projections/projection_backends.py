@@ -26,25 +26,32 @@ class ProjectionBackend(object):
     def commit(self):
         raise NotImplementedError("commit needs to be implemented in inheriting class!")
 
+# Note:
+# Globally used variables, not thread safe!
+from collections import defaultdict
+global_data = defaultdict(list)
+last_id = 0
+
 class InMemoryBackend(ProjectionBackend):
-    data = None
-    last_id = None
-
-    def __init__(self):
-        from collections import defaultdict
-        self.data = defaultdict(list)
-        self.last_id = 0
-
+    def __init__(self, empty=False):
+        if empty:
+            global global_data
+            global_data = defaultdict(list)
     def _get_next_id(self):
-        self.last_id = self.last_id + 1
-        return self.last_id
+        global last_id
+        last_id = last_id + 1
+        return last_id
+
+    def _get_data(self):
+        global global_data
+        return global_data
 
     def get_all(self, model):
-        return self.data[model.__table__.name]
+        return self._get_data()[model.__table__.name]
 
     def get_by_external_id(self, external_id, model):
         found = []
-        for thing in self.data[model.__table__.name]:
+        for thing in self._get_data()[model.__table__.name]:
             if thing.external_id == external_id:
                 found.append(thing)
         return found
@@ -55,7 +62,7 @@ class InMemoryBackend(ProjectionBackend):
 
     def get_by_filter(self, model, filters):
         found = []
-        for thing in self.data[model.__table__.name]:
+        for thing in self._get_data()[model.__table__.name]:
             matches = True
             for key, value in filters.items():
                 if getattr(thing, key) != value:
@@ -82,11 +89,11 @@ class InMemoryBackend(ProjectionBackend):
         return model(id=self._get_next_id(), external_id=external_id)
 
     def save(self, model):
-        for thing in self.data[model.__table__.name]:
+        for thing in self._get_data()[model.__table__.name]:
             if thing.id == model.id:
                 thing = model
                 return
-        self.data[model.__table__.name].append(model)
+        self._get_data()[model.__table__.name].append(model)
 
     def commit(self):
         pass
