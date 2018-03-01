@@ -96,6 +96,20 @@ class DummyBackend(EventBackend):
                 pipeline_id = pipeline_id + 1
 
                 yield event_model
+                
+        # Create a started one, to be able to check in-progress
+        time = next(times)[0].isoformat()
+        ts = Timestamp()
+        ts.FromJsonString(time)
+        event_pb = events_pb2.PipelineStarted(uuid=str(pipeline_id),
+                                              timestamp=ts)
+        event_model = Event(id=self._next_global_id(),
+                            type='PipelineStarted',
+                            body=MessageToDict(event_pb, including_default_value_fields=True),
+                            event_origin_time=time)
+
+        yield event_model
+        yield from self._generate_pipeline_stages(times, pipeline_id)
 
     def _generate_pipeline_stages(self, time_series, pipeline_id):
         from ngcd_common import events_pb2

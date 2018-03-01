@@ -11,8 +11,8 @@ class Configuration(metaclass=MetaFlaskEnv):
     # Valid values for PROJECTION_STORE_BACKEND_TYPE:
     # inmemory
     # sqlalchemy
-    PROJECTION_STORE_BACKEND_TYPE = 'sqlalchemy'
-    #PROJECTION_STORE_BACKEND_TYPE = 'inmemory'
+    #PROJECTION_STORE_BACKEND_TYPE = 'sqlalchemy'
+    PROJECTION_STORE_BACKEND_TYPE = 'inmemory'
     # Valid values for EVENT_STORE_BACKEND_TYPE:
     # dummy - will return fake data for testing
     # sqlalchemy

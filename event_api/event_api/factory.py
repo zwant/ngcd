@@ -18,8 +18,13 @@ def create_app():
 
     register_blueprints(app)
     register_swagger_ui(app)
-
+    setup_cors(app)
     return app
+
+def setup_cors(app):
+    from flask_cors import CORS
+
+    CORS(app)
 
 def setup_db_tables(app):
     with app.app_context():
