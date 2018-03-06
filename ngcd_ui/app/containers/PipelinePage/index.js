@@ -31,7 +31,6 @@ class PipelinePage extends React.PureComponent { // eslint-disable-line react/pr
     };
     return (
       <div>
-        <PageTitle>Pipelines</PageTitle>
         <PipelineList {...pipelinesListProps} />
       </div>
     );

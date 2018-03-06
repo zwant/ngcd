@@ -18,10 +18,18 @@ export class PipelineDetails extends React.PureComponent { // eslint-disable-lin
 
     return (
       <div>
-        <div> Average Duration: { millisecondsToMinutesSeconds(item.average_duration) } </div>
-        <div> Last Duration: { millisecondsToMinutesSeconds(item.last_duration) } </div>
-        <div> Number of runs: { item.number_of_runs } </div>
-        <div> Finished running: <Moment fromNow>{ item.finished_running_at }</Moment> </div>
+        {item.average_duration != null &&
+          <div> Average Duration: { millisecondsToMinutesSeconds(item.average_duration) } </div>
+        }
+        {item.last_duration != null &&
+          <div> Last Duration: { millisecondsToMinutesSeconds(item.last_duration) } </div>
+        }
+        {item.number_of_runs != null &&
+          <div> Number of runs: { item.number_of_runs } </div>
+        }
+        {item.finished_running_at != null &&
+          <div> Finished running: <Moment fromNow>{ item.finished_running_at }</Moment> </div>
+        }
       </div>
     );
   }

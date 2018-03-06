@@ -16,7 +16,6 @@ import { ConnectedRouter } from 'react-router-redux';
 import FontFaceObserver from 'fontfaceobserver';
 import createHistory from 'history/createBrowserHistory';
 import 'sanitize.css/sanitize.css';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 // Import root app
 import App from 'containers/App';
@@ -70,9 +69,7 @@ const render = (messages) => {
     <Provider store={store}>
       <LanguageProvider messages={messages}>
         <ConnectedRouter history={history}>
-          <MuiThemeProvider>
             <App />
-          </MuiThemeProvider>
         </ConnectedRouter>
       </LanguageProvider>
     </Provider>,

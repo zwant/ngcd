@@ -2,15 +2,15 @@
  * Gets the repositories of the user from Github
  */
 
-import { call, put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest, all} from 'redux-saga/effects';
 import { LOAD_PIPELINES } from 'containers/App/constants';
+import { LOAD_PIPELINE_DETAILS } from 'containers/PipelineListItem/constants';
 import { pipelinesLoaded, pipelineLoadingError } from 'containers/App/actions';
+import { pipelineDetailsLoaded, pipelineDetailsLoadingError } from 'containers/PipelineListItem/actions';
+
 
 import request from 'utils/request';
 
-/**
- * Github repos request/response handler
- */
 export function* getPipelines() {
   const requestURL = 'http://localhost:5001/pipeline/';
   try {
@@ -22,13 +22,24 @@ export function* getPipelines() {
   }
 }
 
+export function* getPipelineDetails(action) {
+  const pipelineId = action.pipelineId;
+  const requestURL = `http://localhost:5001/pipeline/${pipelineId}`;
+  try {
+    // Call our request helper (see 'utils/request')
+    const pipelineDetails = yield call(request, requestURL);
+    yield put(pipelineDetailsLoaded(pipelineId, pipelineDetails));
+  } catch (err) {
+    yield put(pipelineDetailsLoadingError(pipelineId, err));
+  }
+}
+
 /**
  * Root saga manages watcher lifecycle
  */
-export default function* pipelineData() {
-  // Watches for LOAD_REPOS actions and calls getRepos when one comes in.
-  // By using `takeLatest` only the result of the latest API call is applied.
-  // It returns task descriptor (just like fork) so we can continue execution
-  // It will be cancelled automatically on component unmount
-  yield takeLatest(LOAD_PIPELINES, getPipelines);
+export default function* root() {
+  yield all([
+    takeLatest(LOAD_PIPELINES, getPipelines),
+    takeLatest(LOAD_PIPELINE_DETAILS, getPipelineDetails)
+  ]);
 }

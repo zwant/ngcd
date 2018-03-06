@@ -19,6 +19,7 @@ const makeSelectPipelines = () => createSelector(
   (globalState) => globalState.get('pipelines')
 );
 
+
 const makeSelectLocation = () => createSelector(
   selectRoute,
   (routeState) => routeState.get('location').toJS()
