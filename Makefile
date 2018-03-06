@@ -24,6 +24,9 @@ run-event-writer:
 run-event-api:
 	source env/bin/activate; cd event_api; CLEAN_DB="true" FLASK_APP="event_api.app" FLASK_DEBUG=true flask run -p 5001 --reload
 
+run-ui:
+	cd ngcd_ui; npm run start
+
 create-events:
 	curl -s --output /dev/null -H "Content-Type: application/json" -X POST -d \
 	'{"timestamp": "2012-04-23T18:25:43.511Z"}' http://localhost:5000/pipeline_started/svante/; \
