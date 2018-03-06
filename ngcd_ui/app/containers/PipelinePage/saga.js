@@ -8,7 +8,6 @@ import { LOAD_PIPELINE_DETAILS } from 'containers/PipelineListItem/constants';
 import { pipelinesLoaded, pipelineLoadingError } from 'containers/App/actions';
 import { pipelineDetailsLoaded, pipelineDetailsLoadingError } from 'containers/PipelineListItem/actions';
 
-
 import request from 'utils/request';
 
 export function* getPipelines() {
@@ -24,7 +23,7 @@ export function* getPipelines() {
 
 export function* getPipelineDetails(action) {
   const pipelineId = action.pipelineId;
-  const requestURL = `http://localhost:5001/pipeline/${pipelineId}`;
+  const requestURL = `http://localhost:5001/pipeline/${pipelineId}/`;
   try {
     // Call our request helper (see 'utils/request')
     const pipelineDetails = yield call(request, requestURL);

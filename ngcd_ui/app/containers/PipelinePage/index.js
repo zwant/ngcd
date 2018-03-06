@@ -52,8 +52,7 @@ PipelinePage.propTypes = {
 
 export function mapDispatchToProps(dispatch) {
   return {
-    /* eslint-disable no-unused-vars */
-    loadPipelines: (evt) => dispatch(loadPipelines()),
+    loadPipelines: () => dispatch(loadPipelines()),
   };
 }
 

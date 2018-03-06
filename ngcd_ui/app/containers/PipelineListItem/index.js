@@ -19,14 +19,14 @@ import classnames from 'classnames';
 import IconButton from 'material-ui/IconButton';
 import { withStyles } from 'material-ui/styles';
 import { loadPipelineDetails } from './actions';
-import injectSaga from 'utils/injectSaga';
-import saga from './saga';
-import { selectPipelineDetails } from './selectors';
+import { makeSelectPipelineDetailsData, makeSelectPipelineDetailsLoading, makeSelectPipelineDetailsLoadingError } from './selectors';
+import ExpandedDetails from './ExpandedDetails';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
 import reducer from './reducer';
 import injectReducer from 'utils/injectReducer';
+import LoadingIndicator from 'components/LoadingIndicator';
 
 const headerStyle = { fontWeight: '500' };
 const cardStyle = { width: '50%' };
@@ -57,12 +57,25 @@ class PipelineListItem extends React.PureComponent { // eslint-disable-line reac
   state = { expanded: false };
 
   handleExpandClick = (itemId) => {
+    if (!this.state.expanded) {
+      this.props.loadPipelineDetails(itemId);
+    }
     this.setState({ expanded: !this.state.expanded });
-    this.props.loadPipelineDetails(itemId);
   };
 
   render() {
-    const { classes, item, loadPipelineDetails, pipelineDetails } = this.props;
+    const { classes, item, loadPipelineDetails, pipelineDetailsData, pipelineDetailsLoading, pipelineDetailsLoadingError } = this.props;
+    let expanderContents = null;
+    if (pipelineDetailsLoading) {
+      expanderContents = <LoadingIndicator />;
+    } else if (pipelineDetailsData) {
+      expanderContents = <ExpandedDetails
+                            pipeline={pipelineDetailsData.pipeline}
+                            stages={pipelineDetailsData.stages} />;
+    } else if (pipelineDetailsLoadingError) {
+      expanderContents = 'Oops, something went wrong';
+    }
+
     // Put together the content of the pipeline
     const content = (
       <Wrapper>
@@ -89,12 +102,9 @@ class PipelineListItem extends React.PureComponent { // eslint-disable-line reac
               <ExpandMoreIcon />
             </IconButton>
           </CardActions>
-
           <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
             <CardContent>
-              <Typography paragraph>
-                { pipelineDetails }
-              </Typography>
+                { expanderContents }
             </CardContent>
           </Collapse>
         </Card>
@@ -110,7 +120,9 @@ PipelineListItem.propTypes = {
   classes: PropTypes.object.isRequired,
   item: PropTypes.object,
   loadPipelineDetails: PropTypes.func,
-  pipelineDetails: PropTypes.object,
+  pipelineDetailsData: PropTypes.object,
+  pipelineDetailsLoading: PropTypes.bool,
+  pipelineDetailsLoadingError: PropTypes.bool,
 };
 
 export function mapDispatchToProps(dispatch) {
@@ -120,21 +132,26 @@ export function mapDispatchToProps(dispatch) {
   };
 }
 
+
 const makeMapStateToProps = () => {
+  const pipelineDetailsData = makeSelectPipelineDetailsData();
+  const pipelineDetailsLoading = makeSelectPipelineDetailsLoading();
+  const pipelineDetailsLoadingError = makeSelectPipelineDetailsLoadingError();
+
   const mapStateToProps = (state, props) => {
     return {
-      pipelineDetails: selectPipelineDetails(state, props)
+      pipelineDetailsData: pipelineDetailsData(state, props),
+      pipelineDetailsLoading: pipelineDetailsLoading(state, props),
+      pipelineDetailsLoadingError: pipelineDetailsLoadingError(state, props),
     }
   }
   return mapStateToProps
 }
 
 const withConnect = connect(makeMapStateToProps, mapDispatchToProps);
-const withSaga = injectSaga({ key: 'pipelineDetails', saga });
 const withReducer = injectReducer({ key: 'pipelineDetails', reducer });
 
 export default withStyles(styles)(compose(
   withReducer,
-  withSaga,
   withConnect,
 )(PipelineListItem));
