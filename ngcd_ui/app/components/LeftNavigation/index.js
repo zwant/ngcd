@@ -14,7 +14,8 @@ const styles = (theme) => ({
   },
 });
 
-class LeftNavigation extends React.Component { // eslint-disable-line react/prefer-stateless-function
+class LeftNavigation extends React.Component {
+  // eslint-disable-line react/prefer-stateless-function
   render() {
     const { classes } = this.props;
 
@@ -28,7 +29,7 @@ class LeftNavigation extends React.Component { // eslint-disable-line react/pref
           }}
         >
           <MenuList component="nav">
-            <MenuItem component={Link} to='/pipelines'>
+            <MenuItem component={Link} to="/pipelines">
               <FormattedMessage {...messages.pipelinesLink} />
             </MenuItem>
           </MenuList>

@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import StageListItem from './StageListItem';
 import List from 'material-ui/List';
 import { withStyles } from 'material-ui/styles';
+import StageListItem from './StageListItem';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     width: '100%',
     maxWidth: 360,
@@ -12,11 +12,12 @@ const styles = theme => ({
   },
 });
 
-export class ExpandedDetails extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+export class ExpandedDetails extends React.PureComponent {
+  // eslint-disable-line react/prefer-stateless-function
   render() {
     const { classes, pipeline, stages } = this.props;
     // If we have items, render them
-    let stageListContent = (<div></div>)
+    let stageListContent = <div />;
     if (stages) {
       stageListContent = stages.map((stage) => (
         <StageListItem key={`stage-${stage.id}`} item={stage} />
@@ -27,9 +28,7 @@ export class ExpandedDetails extends React.PureComponent { // eslint-disable-lin
       <div>
         <div className={classes.root}>
           <h3>Stages</h3>
-          <List>
-            { stageListContent }
-          </List>
+          <List>{stageListContent}</List>
         </div>
       </div>
     );

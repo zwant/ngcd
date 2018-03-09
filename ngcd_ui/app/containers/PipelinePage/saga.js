@@ -2,11 +2,14 @@
  * Gets the repositories of the user from Github
  */
 
-import { call, put, takeLatest, all} from 'redux-saga/effects';
+import { call, put, takeLatest, all } from 'redux-saga/effects';
 import { LOAD_PIPELINES } from 'containers/App/constants';
 import { LOAD_PIPELINE_DETAILS } from 'containers/PipelineListItem/constants';
 import { pipelinesLoaded, pipelineLoadingError } from 'containers/App/actions';
-import { pipelineDetailsLoaded, pipelineDetailsLoadingError } from 'containers/PipelineListItem/actions';
+import {
+  pipelineDetailsLoaded,
+  pipelineDetailsLoadingError,
+} from 'containers/PipelineListItem/actions';
 
 import request from 'utils/request';
 
@@ -39,6 +42,6 @@ export function* getPipelineDetails(action) {
 export default function* root() {
   yield all([
     takeLatest(LOAD_PIPELINES, getPipelines),
-    takeLatest(LOAD_PIPELINE_DETAILS, getPipelineDetails)
+    takeLatest(LOAD_PIPELINE_DETAILS, getPipelineDetails),
   ]);
 }

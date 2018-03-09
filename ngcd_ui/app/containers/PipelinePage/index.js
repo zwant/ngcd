@@ -12,12 +12,17 @@ import { compose } from 'redux';
 
 import PageTitle from 'components/PageTitle';
 import PipelineList from 'components/PipelineList';
-import { makeSelectPipelines, makeSelectLoading, makeSelectError } from 'containers/App/selectors';
+import {
+  makeSelectPipelines,
+  makeSelectLoading,
+  makeSelectError,
+} from 'containers/App/selectors';
 import injectSaga from 'utils/injectSaga';
 import { loadPipelines } from '../App/actions';
 import saga from './saga';
 
-class PipelinePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+class PipelinePage extends React.PureComponent {
+  // eslint-disable-line react/prefer-stateless-function
   componentWillMount() {
     this.props.loadPipelines();
   }
@@ -39,14 +44,8 @@ class PipelinePage extends React.PureComponent { // eslint-disable-line react/pr
 
 PipelinePage.propTypes = {
   loading: PropTypes.bool,
-  error: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.bool,
-  ]),
-  pipelines: PropTypes.oneOfType([
-    PropTypes.array,
-    PropTypes.bool,
-  ]),
+  error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  pipelines: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   loadPipelines: PropTypes.func,
 };
 
@@ -65,7 +64,4 @@ const mapStateToProps = createStructuredSelector({
 const withConnect = connect(mapStateToProps, mapDispatchToProps);
 const withSaga = injectSaga({ key: 'pipelinePage', saga });
 
-export default compose(
-  withSaga,
-  withConnect,
-)(PipelinePage);
+export default compose(withSaga, withConnect)(PipelinePage);

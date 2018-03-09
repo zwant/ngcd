@@ -6,32 +6,31 @@ import AbortedAvatar from './AbortedAvatar';
 import UnknownAvatar from './UnknownAvatar';
 import RunningAvatar from './RunningAvatar';
 
-export class PipelineStatusIndicator extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+export class PipelineStatusIndicator extends React.PureComponent {
+  // eslint-disable-line react/prefer-stateless-function
   getAvatar(running, result) {
     if (running === true) {
-      return <RunningAvatar />
+      return <RunningAvatar />;
     }
     switch (result) {
       case 'SUCCESS':
-        return <SuccessAvatar />
+        return <SuccessAvatar />;
       case 'FAILURE':
-        return <FailureAvatar />
+        return <FailureAvatar />;
       case 'ABORTED':
-        return <AbortedAvatar />
+        return <AbortedAvatar />;
       default:
-        return <UnknownAvatar />
+        return <UnknownAvatar />;
     }
   }
 
   render() {
     const { running, result } = this.props;
 
-    return (
-      this.getAvatar(running, result)
-    );
+    return this.getAvatar(running, result);
   }
 }
-//this.getAvatar(running, result)
+// this.getAvatar(running, result)
 
 PipelineStatusIndicator.propTypes = {
   running: PropTypes.bool,
