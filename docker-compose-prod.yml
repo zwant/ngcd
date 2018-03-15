@@ -82,7 +82,8 @@ services:
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
       - FLASK_APP=event_api.app
       - FLASK_DEBUG=true
-      - CLEAN_DB=false
+      - CLEAN_PROJECTION_DB=false
+      - PROJECTION_STORE_BACKEND_TYPE=inmemory
       - EVENT_STORE_BACKEND_TYPE=sqlalchemy
       - EVENT_SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
     links:
