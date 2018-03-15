@@ -4,6 +4,8 @@ services:
      image: rabbitmq:3-management
      environment:
          - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
+     volumes:
+       - rabbitmq-data:/var/lib/rabbitmq
 
   # influxdb:
   #   image: influxdb:latest
@@ -19,6 +21,10 @@ services:
 
   postgres:
     image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
   validator:
     image: zwant/ngcd-validator
@@ -36,7 +42,7 @@ services:
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
       - RABBITMQ_HOST=rabbitmq
-      - CLEAN_DB=true
+      - CLEAN_DB=false
     depends_on:
       - "rabbitmq"
       - "postgres"
@@ -76,7 +82,7 @@ services:
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
       - FLASK_APP=event_api.app
       - FLASK_DEBUG=true
-      - CLEAN_DB=true
+      - CLEAN_DB=false
       - EVENT_STORE_BACKEND_TYPE=sqlalchemy
       - EVENT_SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
     links:
@@ -99,3 +105,10 @@ services:
       - event-api
     depends_on:
       - event-api
+
+volumes:
+  postgres-data:
+    driver: local
+
+  rabbitmq-data:
+    driver: local

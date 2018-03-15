@@ -13,8 +13,9 @@ import {
 
 import request from 'utils/request';
 
+const apiUrl = process.env.API_URL;
+
 export function* getPipelines() {
-  const apiUrl = process.env.API_URL;
   const requestURL = `${apiUrl}/pipeline/`;
   try {
     // Call our request helper (see 'utils/request')
@@ -27,7 +28,7 @@ export function* getPipelines() {
 
 export function* getPipelineDetails(action) {
   const pipelineId = action.pipelineId;
-  const requestURL = `http://localhost:5001/pipeline/${pipelineId}/`;
+  const requestURL = `${apiUrl}/pipeline/${pipelineId}/`;
   try {
     // Call our request helper (see 'utils/request')
     const pipelineDetails = yield call(request, requestURL);

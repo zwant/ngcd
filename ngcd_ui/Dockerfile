@@ -16,6 +16,7 @@ RUN ["npm", "run", "build"]
 
 FROM nginx:stable-alpine as final
 
-COPY --from=builder /reactapp/build /usr/share/nginx/html
+COPY app/.nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /reactapp/build /var/www/
 
 EXPOSE 80
