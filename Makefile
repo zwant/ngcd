@@ -9,6 +9,7 @@ clean:
 test-all:
 	source env/bin/activate; pytest -v
 
+# Running
 run-validator:
 	source env/bin/activate; cd validator; RABBITMQ_HOST='localhost' python validator/run.py
 
@@ -26,6 +27,43 @@ run-event-api:
 
 run-ui:
 	cd ngcd_ui; npm run start
+
+# Docker
+build-validator-docker:
+	docker build -t zwant/ngcd-validator:latest --build-arg APP_NAME=validator .
+
+push-validator-dockerhub:
+	docker push zwant/ngcd-validator:latest
+
+build-event-writer-docker:
+	docker build -t zwant/ngcd-event-writer:latest --build-arg APP_NAME=event_writer .
+
+push-event-writer-dockerhub:
+	docker push zwant/ngcd-event-writer:latest
+
+build-event-api-docker:
+	docker build -t zwant/ngcd-event-api:latest --build-arg APP_NAME=event_api .
+
+push-event-api-dockerhub:
+	docker push zwant/ngcd-event-api:latest
+
+build-publisher-docker:
+	docker build -t zwant/ngcd-publisher:latest --build-arg APP_NAME=publisher .
+
+push-publisher-dockerhub:
+	docker push zwant/ngcd-publisher:latest
+
+build-ui-docker:
+	docker build -t zwant/ngcd-ui:latest ./ngcd_ui
+
+push-ui-dockerhub:
+	docker push zwant/ngcd-ui:latest
+
+build-docker: build-validator-docker build-event-api-docker build-event-writer-docker build-publisher-docker build-ui-docker
+
+push-docker: push-validator-dockerhub push-event-writer-dockerhub push-event-api-dockerhub push-publisher-dockerhub push-ui-dockerhub
+
+build-push-docker: build-docker push-docker
 
 create-events:
 	curl -s --output /dev/null -H "Content-Type: application/json" -X POST -d \
@@ -51,6 +89,7 @@ create-events:
 	'{"timestamp": "2012-04-23T18:25:43.511Z","new_head_sha": "34567","previous_head_sha": "23456","user": {"id": "1","username": "svante","email": "dummy@example.com"},"commits": [{"sha": "23456","message": "test commit!", "timestamp": "2012-04-23T18:25:43.511Z"},{"sha": "34567","message": "test commit number 2!", "timestamp": "2012-04-23T18:25:43.511Z"}]}' \
 	http://localhost:5000/push/otherrepo/34567/
 
+# Install deps
 install-common-deps:
 	source env/bin/activate; cd common; pip install -r requirements-test.txt
 

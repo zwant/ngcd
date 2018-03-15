@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import pika
 import sys
 from sqlalchemy_utils.functions import database_exists, create_database
 from collections import namedtuple

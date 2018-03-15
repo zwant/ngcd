@@ -9,7 +9,8 @@ setup(
         'Flask',
         'flask-swagger',
         'flask-swagger-ui',
-        'Flask-Env'
+        'Flask-Env',
+        'flask-cors'
     ],
     setup_requires=[
         'pytest-runner',

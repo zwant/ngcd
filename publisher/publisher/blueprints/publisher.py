@@ -17,6 +17,7 @@ def timestamp_from_json_string(json_string):
     return ts
 
 def connect_rabbitmq():
+    current_app.logger.info('Connecting to rabbitmq on %s', current_app.config['RABBITMQ_CONNECTION_STRING'])
     connection = Connection(current_app.config['RABBITMQ_CONNECTION_STRING'])
     producer = connection.Producer()
 

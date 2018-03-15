@@ -4,9 +4,6 @@ services:
      image: rabbitmq:3-management
      environment:
          - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error}]
-     ports:
-       - "8080:15672"
-       - "5672:5672"
 
   # influxdb:
   #   image: influxdb:latest
@@ -22,25 +19,19 @@ services:
 
   postgres:
     image: postgres
-    ports:
-      - "5433:5432"
 
   validator:
-    build:
-      context: .
-      args:
-        APP_NAME: validator
+    image: zwant/ngcd-validator
     command: python -u validator/run.py
     environment:
       - RABBITMQ_HOST=rabbitmq
+    links:
+      - rabbitmq
     depends_on:
-      - "rabbitmq"
+      - rabbitmq
 
-  event_writer:
-    build:
-      context: .
-      args:
-        APP_NAME: event_writer
+  event-writer:
+    image: zwant/ngcd-event-writer
     command: python -u event_writer/run.py
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
@@ -50,33 +41,61 @@ services:
       - "rabbitmq"
       - "postgres"
 
-  publisher:
-    build:
-      context: .
-      args:
-        APP_NAME: publisher
-    command: flask run -p 8080 -h 0.0.0.0
+  publisher-lb:
     ports:
-      - "5000:8080"
+      - 5001:8080
+    image: rancher/load-balancer-service
+    links:
+      - publisher:publisher
+
+  publisher:
+    image: zwant/ngcd-publisher
+    command: flask run -p 8080 -h 0.0.0.0
+    expose:
+      - "8080"
     environment:
-      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_CONNECTION_STRING=amqp://guest:guest@rabbitmq:5672//
       - FLASK_APP=publisher.app
       - FLASK_DEBUG=true
     depends_on:
       - "rabbitmq"
 
-  event_api:
-    build:
-      context: .
-      args:
-        APP_NAME: event_api
-    command: flask run -p 8080 -h 0.0.0.0
+  event-api-lb:
     ports:
-      - "5001:8080"
+      - 5000:8080
+    image: rancher/load-balancer-service
+    links:
+      - event-api:event-api
+
+  event-api:
+    image: zwant/ngcd-event-api
+    command: flask run -p 8080 -h 0.0.0.0
+    expose:
+      - "8080"
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
       - FLASK_APP=event_api.app
       - FLASK_DEBUG=true
       - CLEAN_DB=true
+      - EVENT_STORE_BACKEND_TYPE=sqlalchemy
+      - EVENT_SQLALCHEMY_DATABASE_URI=postgresql+psycopg2://postgres@postgres:5432/event_api
+    links:
+      - postgres
     depends_on:
-      - "postgres"
+      - postgres
+
+  ui-lb:
+    ports:
+      - 80:80
+    image: rancher/load-balancer-service
+    links:
+      - ui:ui
+
+  ui:
+    image: zwant/ngcd-ui
+    expose:
+      - "80"
+    links:
+      - event-api
+    depends_on:
+      - event-api
