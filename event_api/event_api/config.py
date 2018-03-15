@@ -17,7 +17,7 @@ class Configuration(metaclass=MetaFlaskEnv):
     # dummy - will return fake data for testing
     # sqlalchemy
     #EVENT_STORE_BACKEND_TYPE = 'sqlalchemy'
-    EVENT_STORE_BACKEND_TYPE = 'dummy'
+    EVENT_STORE_BACKEND_TYPE = 'sqlalchemy'
     EVENT_SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres@localhost:5433/event_api'
     CLEAN_PROJECTION_DB = True
     LOGCONFIG = 'event_api/logging.yaml'

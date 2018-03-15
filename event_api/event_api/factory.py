@@ -9,7 +9,6 @@ import os
 import yaml
 
 def create_app():
-
     app = Flask('event_api')
     app.config.from_object(Configuration)
     setup_logging(app)
@@ -51,6 +50,12 @@ def get_event_db_session(app):
 
     return event_db_session
 
+def dispose_event_db_session(app):
+    if app.config['EVENT_STORE_BACKEND_TYPE'] == 'sqlalchemy':
+        db_session = get_event_db_session(app)
+        db_session.close_all()
+        db_session.get_bind().dispose()
+
 def get_projection_db_session(app):
     from sqlalchemy import create_engine
     from sqlalchemy.orm import scoped_session
@@ -65,7 +70,11 @@ def get_projection_db_session(app):
                                                                           bind=db_engine))
     return projection_db_session
 
-
+def dispose_projection_db_session(app):
+    if app.config['PROJECTION_STORE_BACKEND_TYPE'] == 'sqlalchemy':
+        db_session = get_projection_db_session(app)
+        db_session.close_all()
+        db_session.get_bind().dispose()
 
 def get_projector_backend(app):
     from ngcd_common.projections.projection_backends import SQLAlchemyBackend, InMemoryBackend

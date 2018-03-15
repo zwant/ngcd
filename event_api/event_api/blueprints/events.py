@@ -1,9 +1,14 @@
 from ngcd_common import model
 from flask import Blueprint, jsonify, abort, request, g, current_app
-from event_api.factory import get_projector, get_projection_db_session
+from event_api.factory import get_projector, get_projection_db_session, dispose_event_db_session, dispose_projection_db_session
 
 # create our blueprint :)
 bp = Blueprint('events', __name__)
+
+@bp.teardown_request
+def shutdown_session(exception=None):
+    dispose_event_db_session(current_app)
+    dispose_projection_db_session(current_app)
 
 @bp.route("/replay/", methods=['POST'])
 def replay():

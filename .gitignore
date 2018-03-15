@@ -106,3 +106,4 @@ venv.bak/
 
 # General
 .DS_Store
+rancher-compose-config.sh
